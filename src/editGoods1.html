@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>编辑商品</title>
+	<link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+	<div class="update_goods_i">
+		<div class="unify_border update_goods_img">
+			<form class="imgFile">
+			<label onclick="updateImage">
+	            <!-- <img v-if="edit.goodsImgEdit" class="update_img_show" src="edit.goodsImgEdit" alt=""> -->
+	            <div>
+	            	<h5 class="img_title">宣传图</h5>
+		            <img class="hand" src="images/hand.png" alt="">
+		            <p class="img_con">点击上传1张图片</p>
+	            </div>
+			</label>
+			</form>
+		</div>
+	</div>
+	<div class="act_name_input">
+		<input class="actName" type="text" placeholder="商品名称" v-model="edit.goodsNameEdit" maxlength="12">
+		<p><span id="" v-html="goodsNameShow">0</span>/12</p>
+	</div>
+	<div class="act_name_input">
+		<input class="actName" type="text" placeholder="描述（商品折扣或价格或特点）" v-model="edit.goodsDescribeEdit" maxlength="12">
+		<p><span id="" v-html="goodsDescribeShow">0</span>/12</p>
+	</div>
+</body>
+</html>

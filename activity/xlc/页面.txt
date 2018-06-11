@@ -1,0 +1,13 @@
+ceshi  		经销商测试的用户（测试）
+common		公共文件放在里面
+
+changchun	长春新用户注册专享
+jiannan		建南店经销商用户
+quanda		全大店经销商用户
+sjzyinpiao	石家庄新用户注册专享
+synew		沈阳新用户注册专享
+tuiguang	修理厂推广
+tyticket	送运费券
+xinyi		信义店经销商用户
+yuncheng	运城新用户注册专享
+zhengzhou	郑州新用户注册专享

@@ -1,0 +1,6 @@
+biaoshi 	配送员赚奖励
+changchun	长春配送员赚奖励
+common		公共部分
+syjsqs		沈阳配送员赚奖励
+yuncheng	运城配送员赚奖励
+zhengzhou	郑州配送员赚奖励

@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>设置活动</title>
+	<link rel="stylesheet" href="./css/main.css">
+	<style type="text/css">
+		[v-cloak] {
+		  display: none;
+		}
+	</style>
+
+<script type="text/javascript" src="./js/szad.js?v=4"></script>
+</head>
+<body style="background: #fff;">
+<section id="temBox" v-cloak>
+	<div> <!-- v-show="!edit.putIn" -->
+	    <div class="guide_hint_w">
+	        <div class="guide_hint">
+	            <span class="guide_hint_icon"><img src="./images/icon_hint.png" alt=""></span>
+	            <p class="guide_hint_text">第四步：请设置活动时间 <br>别急，就差一步，就成功了！</p>
+	            <span class="guide_hint_close"><img src="images/icon_close.png" alt=""></span>
+	        </div>
+	    </div>
+		<div class="edit_set">
+			<div class="flow_path">
+				<div class="flow_path_img"><img src="./images/flow4.png"></div>
+				<div class="flow_path_text">
+					<p>类型选择</p>
+					<p>选择模板</p>
+					<p>活动内容</p>
+					<p>活动设置</p>
+				</div>
+			</div>
+			<div class="setting">
+				<div class="unify_border update_goods_img update_goods_img3">
+			    	<form>
+				        <label @click="updateCutImage">
+				            <img v-if="goods.posterPic" class="update_img_show" :src="goods.posterPic" alt="">
+				            <div v-else>
+				            	<h5 class="img_title">点击上传</h5>
+					            <img class="hand" src="images/hand.png" alt="">
+					            <p class="img_con">可上传活动宣传图、商品图、门头照等</p>
+				            </div>
+				        </label>
+				        <span class="question_mark question_mark2" @click="coverClick"><img src="images/wen1.png"></span>
+			        </form>
+			    </div>
+
+		        <div class="act_title">活动时间</div>
+		        <div class="act_time">
+		        	<div class="unify_border2 w40 setting_time">
+			        	<input type="text" id="startTimeS" placeholder="请选择开始时间" readonly :value="edit.startTime">
+			        </div>
+			        <span class="time_line fl">—</span>
+			        <div class="unify_border2 w40 setting_time">
+			        	<input type="text" id="endTimeS" placeholder="请选择结束时间" readonly :value="edit.endTime">
+			        </div>
+		        </div>
+				<div class="clear"></div>
+			    <div class="unify_border2" @click="putInClick">
+			    	<span>投放地区：</span>
+			    	<p v-if="!goods.cityCode.length" class="select_addr">请选择</p>
+			    	<p v-else class="select_addr dian" style="color:#333;">
+			    		{{edit.nationwideS?"全国":edit.checkedAddress}}
+			    	</p>
+			    </div>
+			    <div class="charge_style">
+			    	<p class="charge_title">收费方式</p>
+			    	<span class="question_mark" @click="chargeClick"><img src="images/wen1.png"></span>
+			    	<p class="charge_have">您现在拥有<span>{{edit.tokenNum}}</span>枚令牌</p>
+			    </div>
+			    <div class="submit_audit">
+			    	<button v-if="edit.tokenNum" @click="submitAudit">提交审核</button>
+			    	<button v-else @click="goBuyTaken">购买令牌</button>
+			    </div>
+			</div>
+		</div>
+		<div class="put_in_bg" v-if="edit.charge">
+			<div class="put_in_addr">
+				<div class="charge_style_w">
+					<iframe src="../../doc/token.html?v=1" frameborder="0" scrolling="no" id="external-frame" onload="setIframeHeight(this)"></iframe>
+					<button class="put_in_close"  @click="chargeClick">关闭</button>
+					<div class="charge_style_tel">
+						如有疑问您可致电客服：400-1821-200
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="put_in_bg" v-if="edit.cover">
+		<div class="put_in_addr">
+			<h3>展示样例</h3>
+			<div class="put_in_img"><img src="images/yang2.jpg?v=3" alt=""></div>
+			<ul class="put_in_ul">
+				<li>1、修理厂浏览活动时的封面图</li>
+				<li>2、更好的效果图，能够吸引用户点击哦~</li>
+				<li>3、如果您没有合适的图片，您可上传门头照或商品图</li>
+			</ul>
+			<button class="put_in_close"  @click="coverClick">关闭</button>
+		</div>
+	</div>
+	<!-- 地区选择 -->
+	<div v-show="edit.putIn" class="fillout_goods_w" @click="putInClick"></div>
+	<transition name="slide-fade">
+	<div class="put_in_w" v-show="edit.putIn">
+		<div class="fillout_goods_top">
+			<p>选择投放地区</p>
+			<span @click="putInClick"><img src="./images/icon_close.png"></span>
+		</div>
+		<div class="fillout_goods_h">
+			<div class="put_in_li">
+				<p><label><input type="checkbox" name="cityCodeAll" @change="nationwide" v-model="edit.nationwide"><span>全国<b></b></span></label></p>
+			</div>
+			<div v-for="list in edit.addressJson">
+				<div class="letter">{{list.initial}}</div>
+				<div class="put_in_li">
+					<p v-for="(addr,index) in list.city"><label><input type="checkbox" name="cityCode" :value="addr.cityNumber" v-model="edit.cityCodeShow" :id='"demo"+index' @change="buxuan"><span>{{addr.cityCname}}<b></b></span></label></p>
+				</div>
+			</div>
+			<div class="put_in_footer">
+				<div class="put_in_footer_c">
+					<button class="put_in_btn put_in_btn2" @click="putInClick">取消</button>
+					<button class="put_in_btn" @click="putInTrue">确认</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	</transition>
+</section>
+
+<script type="text/javascript" src="./js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="./js/alert.js"></script>
+<!-- 时间插件 -->
+<link rel="stylesheet" href="../../common/js/source/mobiscroll/mobiscroll.css?v=1">
+<script type="text/javascript" src="../../common/js/source/mobiscroll/mobiscroll_date.js?v=1" charset="gb2312"></script>
+<script type="text/javascript" src="../../common/js/source/mobiscroll/mobiscroll.js?v=1"></script>
+
+<!-- 主要js -->
+<script type="text/javascript" src="./js/main.js?v=1"></script>
+
+<script type="text/javascript" src="../../common/js/source/vue.min.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#temBox',
+	data: {
+		goods:{
+			advertiseClassifyId:"",//广告类型
+			templateId:"",	//模板Id
+			userId:"",//用户id
+			account:"",//资金账号
+			posterPic:"",
+			cityCode:"",
+			startTime:"",
+			endTime:""
+		},
+		edit:{
+			startTime:"",//开始时间
+			tokenNum:0,//令牌数
+			maxDays:0,	//允许最大时间天数
+			endTime:"",	//结束时间
+			cover:false,	//样例展示是否展示
+			putIn:false,	//地区是否展示
+			charge:false,	//收费方式是否显示
+			nationwide:false,	//是否是全国
+			nationwideS:false,	//是否展示全国
+			checkedAddress:"",	//选中得地区汉字显示
+			cityCodeShow:null,	//选中的地区编号数组
+			addressJson:[],		//地区重新排序列表
+			addressList:[],		//地区列表
+			imagess:"",		//地区列表
+		}
+	},
+	created: function () {
+		// 加载app接口初始化
+        szad.init();
+		var that=this;
+        szad.getUserInfo(function(userInfo){
+        	// 判断是否是json数据
+        	var userInfo=actCommon.transformJson(userInfo);
+        	var editId=packaging.GetQueryString('editid');
+        	var copy=packaging.GetQueryString('copy');
+			if (editId) {
+				delete that.goods['advertiseClassifyId'];
+				delete that.goods['templateId'];
+				that.goods['advertiseId']=editId;
+			}else{
+				that.goods.advertiseClassifyId=parseInt(packaging.GetQueryString('classify'));
+				that.goods.templateId=parseInt(packaging.GetQueryString('plate'));
+				that.goods.cityCode=userInfo.cityNumber;
+			}
+        	that.goods.userId=userInfo.garageId;
+			that.goods.account=userInfo.account;
+			that.edit['userName']=userInfo.username;
+			that.edit['cityNumber']=userInfo.cityNumber;
+			// 默认地区
+			// 获取上一页的活动内容
+	        that.gainGoods();
+	        // 默认时间
+			that.showTime();
+			// 地区
+			that.address();
+			// 令牌
+			that.tokenNum();
+        })
+		
+	},
+	computed:{
+		goodsNumShow:function(){
+			return this.goods.title.length;
+		},
+	},
+	methods:{
+		gainGoods:function(){//获取上一步商品的信息
+			var storage = window.sessionStorage;
+			if (!!storage.goodList) {
+				var goodList=JSON.parse(storage.goodList);
+				for (var i in goodList) {
+					if (typeof goodList[i] == "string") {
+						this.goods[i]=goodList[i];
+					}else{
+						this.goods[i]=JSON.stringify(goodList[i]);
+					};
+				};
+				var editId=packaging.GetQueryString('editid');
+				var copy=packaging.GetQueryString('copy');
+				if(editId||copy){
+					if (!this.goods.cityCode||this.goods.cityCode=="000000"||this.goods.cityCode==000000) {
+						this.goods.cityCode="000000";
+						this.edit.nationwideS=true;
+						this.edit.nationwide=true;
+					};
+				}
+			};
+			// 只显示一次
+		   	window.actCommon.addStep('step4',localStorage.step4)
+		},
+		buxuan:function(){//选择地区变化时
+			var addressList=this.edit.addressList;
+			var addressId=[];
+			for (var i = 0; i < addressList.length; i++) {
+				addressId.push(addressList[i].cityNumber);
+			};
+			if (addressId.length==this.edit.cityCodeShow.length) {
+				this.edit.nationwide=true;
+			}else{
+				this.edit.nationwide=false;
+			}
+		},
+		coverClick:function(){//显示门头照时
+			var coverV=this.edit.cover;
+			if (coverV) {
+				this.edit.cover=false;
+			}else{
+				this.timeUpdate();
+				this.edit.cover=true;
+			};
+		},
+		putInClick:function(){//弹出和取消选择地区
+			var coverV=this.edit.putIn;
+			if (coverV) {
+				this.edit.putIn=false;
+			}else{
+				this.timeUpdate();
+				this.edit.putIn=true;
+				if (this.goods.cityCode=='000000') {
+					this.edit.nationwide=true;
+					var cityCodeShow=[];
+					var addJson=this.edit.addressJson;
+					for (var i = 0; i < addJson.length; i++) {
+						for (var j = 0; j < addJson[i].city.length; j++) {
+							cityCodeShow.push(addJson[i].city[j].cityNumber)
+						};
+					};
+					this.edit.cityCodeShow=cityCodeShow
+				}else{
+					this.edit.nationwide=false;
+					this.edit.cityCodeShow=this.goods.cityCode.split(',');
+				};
+			};
+		},
+		timeUpdate:function(){//获取开始结束时间
+			var startArr=document.getElementById('startTimeS').value;
+			var endArr=document.getElementById('endTimeS').value;
+			this.edit.startTime=startArr;
+			this.edit.endTime=endArr;
+		},
+		putInTrue:function(){//选择地区确认
+			var cityCodeShow=this.edit.cityCodeShow;
+			if (cityCodeShow.length) {
+				if (this.edit.nationwide) {
+					this.edit.nationwideS=true;
+					this.goods.cityCode='000000';
+				}else{
+					var cityCodeHtml="";
+					for (var i = 0; i < cityCodeShow.length-1; i++) {
+						if (cityCodeShow[i]) {
+							cityCodeHtml+=cityCodeShow[i]+","
+						};
+					};
+					cityCodeHtml+=cityCodeShow[cityCodeShow.length-1]
+					this.goods.cityCode=cityCodeHtml;
+					this.edit.nationwideS=false;
+					this.cityCodeStr(cityCodeHtml)
+				};
+
+			}else{
+				this.goods.cityCode="";
+				this.cityCodeStr("")
+			};
+			this.edit.cityCodeShow="";
+			this.edit.putIn=false;
+		},
+		chargeClick:function(event){//显示关闭收费方式浮层
+			var coverV=this.edit.charge;
+			if (coverV) {
+				this.edit.charge=false;
+			}else{
+				this.timeUpdate();
+				this.edit.charge=true;
+			};
+		},
+		updateCutImage:function(){
+			var info={
+				'judgeCut':true,
+				'width':375,
+				'height':160,
+				'widthScale':75,
+				'heightScale':32,
+			}
+			var that=this;
+			szad.cutImage(info,function(data){
+				var data=actCommon.transformJson(data);
+				if (data.success) {
+					that.goods.posterPic=data.info.domain+data.info.filePath;
+				}else{
+					packaging.fubottom(data.message);
+				};
+			})
+
+		},
+		showTime:function(){//时间初始化
+			packaging.loading('加载中...');
+			var that=this;
+        	var info2={
+				'userId':that.goods.userId
+			}
+			var api=actCommon.appApiW();
+			var url=api+"/api/app/advertise/sale/advertise/advertiseconfig"
+			var openCity=function(data){
+				packaging.loadingRemove();//移除加载上传浮层
+            	var data=actCommon.transformJson(data);
+			    
+			    if (data.success) {
+					if (data.info) {
+						that.edit.maxDays=data.info.maxDays;
+						var editId=packaging.GetQueryString('editid');
+						if (!editId) {
+			    			that.showTimePush(data.info.maxDays)
+						}else{
+							that.showTimeEdit(data.info.maxDays)
+						};
+					};
+			    }else{
+			    	packaging.fubottom(data.message);
+			    };
+			}
+			szad.requestNetworkData(url,info2,openCity)
+			
+		},
+		showTimePush:function(time){//新增商品的时候显示时间
+			var dataTime = new Date();
+			var dataTimeH = new Date();
+			dataTimeH.setDate(dataTime.getDate() + parseInt(time) - 1);
+			dataTimeH.setTime(dataTimeH);
+
+			var dataTimeShow=dataTime.format('yyyy-MM-dd');
+			var dataTimeShowH=dataTimeH.format('yyyy-MM-dd');
+
+			this.edit.startTime=dataTimeShow;
+			this.edit.endTime=dataTimeShowH;
+		},
+		showTimeEdit:function(time){//编辑商品的时候显示时间
+			var dataTime = new Date();
+			var dataTimeH = new Date();
+
+			dataTime.setTime(parseInt(this.goods.startTime));
+			dataTimeH.setTime(parseInt(this.goods.endTime));
+
+			var dataTimeShow=dataTime.format('yyyy-MM-dd');
+			var dataTimeShowH=dataTimeH.format('yyyy-MM-dd');
+
+			this.edit.startTime=dataTimeShow;
+			this.edit.endTime=dataTimeShowH;
+		},
+		address:function(){//获取地区
+			packaging.loading('加载中...');
+			var info2={
+				'garageId':this.goods.userId,
+				'cityNumber':this.edit.cityNumber
+			}
+			var api=actCommon.appApiP();
+			var url=api+"/api/platform/apphome/findopencity"
+			var that=this;
+			var openCity=function(data){
+				packaging.loadingRemove();//移除加载上传浮层
+				var data=actCommon.transformJson(data);
+			    if (data.success) {
+			    	that.addressPush(data.info)
+			    }else{
+			    	packaging.fubottom(data.message);
+			    };
+			}
+			szad.requestNetworkData(url,info2,openCity)
+		},
+		addressPush:function(address){//初始化地区转换
+			this.edit.addressList=address;
+			var list=address;
+			var initialArr=[];
+			// 获取字母数组
+			for (var i = 0; i < list.length; i++) {
+				initialArr.push(list[i].initial);
+			};
+			// 字母数组去重
+			Array.prototype.unique2 = function(){
+				this.sort();
+				var res = [this[0]];
+				for(var i = 1; i < this.length; i++){
+				 	if(this[i] !== res[res.length - 1]){
+						res.push(this[i]);
+					}
+				}
+				return res;
+			}
+			initialArr=initialArr.unique2();
+			// 地区重新排序
+			var zengli=[];
+			for(var i = 0; i < initialArr.length; i++){
+				var zengliC={}
+				zengliC['initial']=initialArr[i];
+				zengliC['city']=[];
+				for (var j = 0; j < list.length; j++) {
+					if (initialArr[i]==list[j].initial) {
+						zengliC.city.push(list[j])
+					};
+				};
+				zengli.push(zengliC)
+			}
+			this.edit.addressJson=zengli;
+			this.cityCodeStr(this.goods.cityCode)
+		},
+		nationwide:function(){//选中的地区编号数组
+			var addressList=this.edit.addressList;
+			var addressId=[];
+			if (!this.edit.nationwide) {
+				this.edit.cityCodeShow=[];
+			}else{
+				for (var i = 0; i < addressList.length; i++) {
+					addressId.push(addressList[i].cityNumber);
+				};
+				this.edit.cityCodeShow=addressId;
+			}
+		},
+		cityCodeStr:function(value){//将地区编号转化为汉字显示
+			if (value) {
+				var valueArr=value.split(',');
+				var addressList=this.edit.addressList;
+				var addressShow=""
+				if (addressList.length) {
+					for (var i = 0; i < valueArr.length; i++) {
+						for (var j = 0; j < addressList.length; j++) {
+							if (valueArr[i]==addressList[j].cityNumber) {
+								addressShow+=addressList[j].cityCname +" ";
+							};
+						};
+					};
+				}
+
+				var editId=packaging.GetQueryString('editid');
+				var copy=packaging.GetQueryString('copy');
+				if(!editId&&!addressShow&&!copy){
+					this.goods.cityCode="";
+				}
+				this.edit.checkedAddress=addressShow;
+			}else{
+				this.edit.checkedAddress="";
+			};
+		},
+		tokenNum:function(){//获取令牌数
+			packaging.loading('加载中...');
+			var info={
+				'userName':this.edit.userName,
+				'account':this.goods.account
+			}
+			var api=actCommon.appApiW();
+			var url=api+"/api/app/advertise/sale/user/num"
+			var that=this;
+			var tokenNumFun=function(data){
+				packaging.loadingRemove();//移除加载上传浮层
+				var data=actCommon.transformJson(data);
+			    if (data.success) {
+			    	if (data.info) {
+			    		that.edit.tokenNum=data.info.advNum;
+			    	}else{
+			    		that.edit.tokenNum=0;
+			    	};
+			    	
+			    }else{
+			    	packaging.fubottom(data.message);
+			    };
+			}
+
+			szad.requestNetworkData(url,info,tokenNumFun)
+		},
+		submitAudit:function(){//提交数据
+			var posterPic=this.goods.posterPic;
+			var startTime=this.edit.startTime;
+			var endTime=this.edit.endTime;
+			var cityCode=this.goods.cityCode;
+			if (!posterPic) {
+				packaging.fubottom('请上传活动封面');
+				return false;
+			};
+			if (!startTime) {
+				packaging.fubottom('开始时间不能为空');
+				return false;
+			};
+			if (!endTime) {
+				packaging.fubottom('结束时间不能为空');
+				return false;
+			};
+			if (!cityCode) {
+				packaging.fubottom('请选择投放地区');
+				return false;
+			};
+			// 开始结束时间转换以及判断
+			var startArr=document.getElementById('startTimeS').value.split('-');
+			var endArr=document.getElementById('endTimeS').value.split('-');
+			// 当前时间
+			var nowDate = new Date();  
+	        var year = nowDate.getFullYear();       //年  
+	        var month = nowDate.getMonth() + 1;     //月  
+	        var day = nowDate.getDate();            //日 
+	        // 判断是不是今天 
+			if (startArr[0]==year &&startArr[1]==month &&startArr[2]==day ) {
+				var startTimeT=new Date();
+				var startTimeCuo=Date.parse(new Date())
+			}else{
+				var startTimeT=new Date(startArr[0],startArr[1]-1,startArr[2]);
+				var startTimeCuo=startTimeT.getTime();
+			};
+			var EndTimeT=new Date(endArr[0],endArr[1]-1,endArr[2],23,59,59);
+			var endTimecuo=EndTimeT.getTime();
+
+			if (parseInt(startTimeCuo)>parseInt(endTimecuo)) {
+				packaging.fubottom('开始时间不能大于结束时间');
+				return false;
+			};
+			var cazhi=endTimecuo-startTimeCuo;
+			var qujian=(this.edit.maxDays*24*60*60*1000);
+			if (parseInt(cazhi)>parseInt(qujian)) {
+				packaging.fubottom('活动时间区间不能大于'+this.edit.maxDays+"天");
+				return false;
+			};
+
+			this.goods.startTime=startTimeCuo.toString();
+			this.goods.endTime=endTimecuo.toString();
+
+			// 开始结束时间转换end
+			packaging.loading('提交中...');
+			// consoleLog(this.goods)
+			var editId=packaging.GetQueryString('editid');
+			if (!editId) {
+				var api=actCommon.appApiW();
+				var url=api+"/api/app/advertise/sale/advertise/add";
+				var that=this;
+				var submitT=function(data){
+					packaging.loadingRemove();//移除加载上传浮层
+					var data=actCommon.transformJson(data);
+				    if (data.success) {
+				    	window.location.href="complete.html?nav=goHome";
+				    }else{
+				    	packaging.fubottom(data.message);
+				    };
+				}
+				szad.postNetworkData(url,JSON.parse(JSON.stringify(this.goods)),submitT)
+			}else{
+				var api=actCommon.appApiW();
+				var url=api+"/api/app/advertise/sale/advertise/update";
+				var submitT=function(data){
+					packaging.loadingRemove();//移除加载上传浮层
+            		var data=actCommon.transformJson(data);
+				    if (data.success) {
+				    	window.location.href="complete.html?nav=goHome"
+				    }else{
+				    	packaging.fubottom(data.message);
+				    };
+				}
+				szad.postNetworkData(url,JSON.parse(JSON.stringify(this.goods)),submitT)
+			}
+		},
+		goBuyTaken:function(){//去购买令牌方法
+			this.timeUpdate();
+            var that=this;
+            szad.buyTokens(function(dataInfo){
+            	that.edit.tokenNum=dataInfo;
+            })
+		}
+
+	}
+})
+// 关闭第一次提示
+/*$(function () {
+    $('.guide_hint_close').click(function(event) {
+        $('.guide_hint_w').slideUp('400');
+    });
+});*/
+
+// 收费方式iframe高度自适应
+function setIframeHeight(iframe) {
+	if (iframe) {
+		var iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+		if (iframeWin.document.body) {
+			iframe.height = iframeWin.document.documentElement.scrollHeight || iframeWin.document.body.scrollHeight;
+		}
+	}
+};
+/*时间插件*/
+$(function () {
+	var currYear = (new Date()).getFullYear();	
+	var opt={};
+	opt.date = {preset : 'date'};
+	opt.datetime = {preset : 'datetime'};
+	opt.time = {preset : 'time'};
+	opt.default = {
+		theme: 'android-ics light', //皮肤样式
+		display: 'bottom', //显示方式 
+		mode: 'scroller', //日期选择模式
+		dateFormat: 'yy-mm-dd',
+		lang: 'zh',
+		showNow: true,
+		nowText: "今天",
+		startYear: currYear - 50, //开始年份
+		endYear: currYear+50, //结束年份
+		minDate:new Date()
+	};
+	$("#startTimeS").mobiscroll($.extend(opt['date'], opt['default']));
+	$("#endTimeS").mobiscroll($.extend(opt['date'], opt['default']));
+});
+
+</script>
+<!-- 腾讯监控 -->
+<script type="text/javascript">
+(function() {
+	var rnd=Math.floor(Math.random()*1000000);
+	var mta = document.createElement("script");
+	mta.setAttribute("type", "text/javascript");
+	mta.src = "../../common/js/tencent.js?rnd="+rnd;
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+</script>
+</body>
+</html>
+
+

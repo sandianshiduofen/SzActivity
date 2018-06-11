@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>活动详情</title>
+	<link rel="stylesheet" href="./css/main.css">
+	<style type="text/css">
+		[v-cloak] {
+		  display: none;
+		}
+	</style>
+</head>
+<body>
+<!-- 简版 -->
+<section class="show_template" id="temBox" v-cloak>
+    <div class="guide_hint_w">
+        <div class="guide_hint">
+            <span class="guide_hint_icon"><img src="./images/icon_hint.png" alt=""></span>
+            <p class="guide_hint_text">每天浏览活动定时都会有积分福利哦~</p>
+            <span class="guide_hint_close"><img src="images/icon_close.png" alt=""></span>
+        </div>
+    </div>
+	<div class="activity_top">
+		<div class="activity_title">{{goods.name}}</div>
+		<div class="activity_b">
+			<p class="activity_b_time">{{goods.createTime}}</p>
+			<p class="activity_b_pv"><span><img src="images/eye1.png" ></span>{{packaging.GetQueryString('garageId')?(goods.viewPv+1):goods.viewPv}}</p>
+			<p class="activity_b_con">{{goods.company}}</p>
+		</div>
+	</div>
+	<div class="simple_view">
+		<div  v-for="(list,index) in goods.content.list">
+			<div><img class="simple_img" :src="list.goodsImg" alt=""></div>
+			<div class="simple_text" v-html="huanhang(list.goodsDescribe)"></div>
+		</div>
+	</div>
+
+	<div class="footer_btn" v-if="edit.chatTel">
+		<div class="footer_btn_c">
+			<p class="to_chat_btn"><span></span>聊天</p>
+			<p class="tel_btn to_tel_btn"><span></span>拨打电话</p>
+		</div>
+	</div>
+	
+	<!-- 弹出领取红包 -->
+	<div class="ling_award_w" v-if="edit.showRedPacket">
+		<div class="ling_award_bg" @click="iKnowClose"></div>
+		<div class="ling_award ling_award1" id="lingqu">
+		    <img class="award_img" src="images/award1.png" alt="">
+		    <span class="ling_award_close" @click="iKnowClose"><img src="./images/icon_close2.png"></span>
+		    <div class="ling_award_text">
+		        <p class="ling_award_t1">打开领取积分</p>
+		        <p class="ling_award_t2">积分可换物流券</p>
+		        <button class="ling_award_img" @click="getRedPacket" :disabled="edit.isDisable"><img src="images/award_btn.png"></button>
+		    </div>
+		</div>
+	</div>
+
+	<!-- 领取红包成功 -->
+	<div class="ling_award_w" v-if="edit.haveRedPacket">
+		<div class="ling_award_bg"></div>
+		<div class="ling_award ling_award2">
+		    <img class="award_img" src="images/award2.png" alt="">
+		    <div class="ling_award_text">
+		        <div class="ling_award_t3"><p class="dian" style="color:#fff;">{{edit.companyName}}</p>给您发积分啦！</div>
+		        <p class="ling_award_t4">+{{edit.redPacketNum}}积分</p>
+		        <p class="ling_award_btn" @click="iKnowClose">我知道了</p>
+		        <p class="ling_award_t5">您可在我的-我的积分查看</p>
+		    </div>
+		</div>
+	</div>
+	<!-- 领取红包失败 -->
+	<div class="ling_award_w" v-if="edit.NoRedPacket">
+		<div class="ling_award_bg"></div>
+		<div class="ling_award ling_award3">
+		    <img class="award_img" src="images/award3.png" alt="">
+		    <div class="ling_award_text">
+		        <p class="ling_award_t6">居然没有积分</p>
+		        <p class="ling_award_t7">幸运女神说下次会照顾你的！</p>
+		        <p class="ling_award_btn" @click="iKnowClose">我知道了</p>
+		    </div>
+		</div>
+	</div>
+	<!-- 领取红包已领完 -->
+	<div class="ling_award_w" v-if="edit.overRedPacket">
+		<div class="ling_award_bg"></div>
+		<div class="ling_award ling_award3">
+		    <img class="award_img" src="images/award3.png" alt="">
+		    <div class="ling_award_text">
+		        <p class="ling_award_t6">积分奖励已全部被领取</p>
+		        <p class="ling_award_t7">下次记得早点来哦！</p>
+		        <p class="ling_award_btn" @click="iKnowClose">我知道了</p>
+		    </div>
+		</div>
+	</div>
+</section>
+
+<script type="text/javascript" src="../../common/js/source/vue.min.js"></script>
+<script type="text/javascript" src="./js/szad.js"></script>
+<script type="text/javascript" src="./js/main.js"></script>
+<script type="text/javascript" src="./js/chat.js"></script>
+<script type="text/javascript" src="./js/preview.js"></script>
+<!-- 腾讯监控 -->
+<script type="text/javascript">
+(function() {
+	var rnd=Math.floor(Math.random()*1000000);
+	var mta = document.createElement("script");
+	mta.setAttribute("type", "text/javascript");
+	mta.src = "../../common/js/tencent.js?rnd="+rnd;
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+</script>
+</body>
+</html>

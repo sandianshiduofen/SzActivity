@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>班次时刻表</title>
+	<style type="text/css">
+	html { background: #ffffff; font-size: 100px; max-width: 1080px;margin: 0 auto;}
+    *{padding: 0;margin: 0;list-style: none;}
+	body {resize: none; color: #555; line-height: 1; background: #ffffff; -webkit-touch-callout: none; user-select: none; font-size: 0.12rem; font-family: tahoma,Helvetica, Arial,"\5FAE\8F6F\96C5\9ED1"; *font-family: "\5FAE\8F6F\96C5\9ED1";}
+	img {border: none;display:block;}
+	a { text-decoration: none; cursor: pointer; color: #555; }
+	a:hover{ outline: none; background: none;-webkit-tap-highlight-color: transparent;}
+	::-webkit-scrollbar { width: 0; }
+	.common{width:100%;}
+	.w100 img{width:100%;height:auto;}
+
+    .loadingZhuan{position: fixed;left:0;top: 0;top: 0;bottom: 0;right: 0;background: rgba(0,0,0,0.1);z-index: 100;}
+	.loadingZ{position: fixed;height:0.7rem;width:1rem;background: rgba(0,0,0,0.7);left:50%;margin-left:-0.5rem;top:50%;margin-top:-0.5rem;border-radius:3px;padding:0.15rem 0;}
+	.loadingZ img{width:0.4rem;display:block;margin:0 auto;}
+	.loadingZ p{text-align: center;color:#fff;line-height: 0.3rem;font-size:0.14rem;}
+
+    .select{background: #f8f8f8;height: 0.3rem;line-height: 0.3rem; padding: 0 5%;color: #9b9b9b;font-size: 0.14rem;}
+    .selectList li{border-bottom: 1px solid #f8f8f8;height: 0.4rem;line-height: 0.4rem;padding: 0 5%;font-size: 0.16rem;position: relative;}
+    .selectList li.current{color: #64d9da;}
+    .selectList li.current span{height: 0.2rem;width: 0.2rem;background: url(./images/ic_duigou.png) 0 0 no-repeat;position: absolute;right: 5%;background-size: contain;top: 0.15rem;}
+    
+	</style>
+</head>
+<body>
+<section id="dotList">
+    <p class="select">请选择服务站</p>
+    <ul class="selectList" id="selectList"></ul>
+</section>
+
+<script type="text/javascript" src="../../common/js/source/zepto.min.js"></script>
+<script type="text/javascript">
+    var apiUrl="http://tms.3zqp.com";
+    var selectList=document.getElementById('selectList');
+    var dotList=document.getElementById('dotList');
+    
+    var cityId=GetQueryString("cityId");
+    var areaId=GetQueryString("areaId");
+
+    if(!cityId){
+        noInfo(dotList,'未传入cityId')
+    }else if(!areaId){
+        noInfo(dotList,'未传入areaId')
+    }else{
+        loading('加载中...')
+        $.ajax({
+            url: apiUrl+'/api/wx/store/getListByArea',
+            type: 'GET',
+            dataType: 'json',
+            timeout : 10000,
+            data: {cityId:cityId,areaId:areaId,requestTokenId:requestTokenId()},
+            success:function(data){
+                if (data.success) {
+                    var info=data.info||{};
+                    showList(info)
+                }else{
+                    alert(data.message);
+                };
+            },
+            complete : function(XMLHttpRequest,status){
+                loadingRemove();
+                if(status=='error'){
+                    noInfo(dotList,'服务器请求失败，请检查网络')
+                }else if(status=='timeout'){
+                    noInfo(dotList,'服务器请求超时,请检查网络')
+                }
+            }
+        });
+    }
+
+function showList(data){
+    if(data.length>1){
+        var htmlLi = ''
+        for(i = 0; i < data.length;i++){
+            var Obj = data[i];
+            var dotId=Obj.id;
+            var selectLiS=document.createElement('li');
+            selectLiS.setAttribute('data-num',Obj.id);
+            selectLiS.innerHTML=Obj.name+"<span></span>"
+            var touchStartFunc=function(){
+                this.setAttribute("class","current");
+            }
+            var touchEndFunc=function(){
+                this.removeAttribute('class');
+                window.location.href="./details.html?cityId="+GetQueryString("cityId")+"&areaId="+GetQueryString("areaId")+"&id="+this.getAttribute('data-num');
+            }
+            selectLiS.addEventListener('touchstart', touchStartFunc, false);
+            selectLiS.addEventListener('touchend', touchEndFunc, false);
+            selectList.appendChild(selectLiS);
+        }
+    }
+    if(data.length==1){
+        var dumpId=data[0].id;
+        window.location.href="./details.html?cityId="+GetQueryString("cityId")+"&areaId="+GetQueryString("areaId")+"&id="+dumpId;
+    }
+    if(data.length<1){
+        var dotList=document.getElementById('dotList');
+        noInfo(dotList,'您所在的地区暂无服务站网点<br>如有疑问联系客服：<a style="color:#3385ff" href="tel:4001821200">4001821200</a>')
+        
+    }
+}
+
+function noInfo(dom,text){
+    dom.innerHTML='<p style="text-align:center;padding-top:1rem;font-size:0.14rem;line-height:0.2rem;"><img style="display:block;margin:0 auto 0.2rem;width:1rem;height:auto" src="./images/no_find.png"/>'+text+'</p>'
+}
+
+/*获取链接参数*/
+function GetQueryString(name)
+{
+     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+     var r = window.location.search.substr(1).match(reg);
+     if(r!=null)return  unescape(r[2]); return null;
+}
+//加载中 
+function loading(text){
+    var loader=document.createElement('div');
+    loader.id="loadingZhuan"
+    loader.setAttribute("class","loadingZhuan")
+    loader.innerHTML='<div class="loadingZ"><img src="../../common/images/zhuan.gif"><p>'+text+'</p></div>'
+	document.body.appendChild(loader);
+}
+//移除加载
+function loadingRemove(){
+    var loadingZhuan=document.getElementById('loadingZhuan')||null;
+    if(loadingZhuan){
+        loadingZhuan.parentNode.removeChild(loadingZhuan)
+    }
+}
+
+//随机数
+function requestTokenId(num){
+	len =num||32;
+　　var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+　　var maxPos = $chars.length;
+　　var pwd = '';
+　　for (i = 0; i < len; i++) {
+　　　　pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+　　}
+	return 'wx_tms_'+pwd;
+}
+</script>
+<!-- 腾讯监控 -->
+<script type="text/javascript">
+(function() {
+    var rnd=Math.floor(Math.random()*1000000);
+    var mta = document.createElement("script");
+    mta.setAttribute("type", "text/javascript");
+    mta.src = "../../common/js/tencent.js?rnd="+rnd;
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(mta, s);
+})();
+</script>
+</body>
+</html>

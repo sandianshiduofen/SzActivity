@@ -1,0 +1,12 @@
+{
+  "name": "advertising-campaign",
+  "version": "1.0.0",
+  "description": "广告推销",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "author": "三点十多分",
+  "license": "ISC"
+}

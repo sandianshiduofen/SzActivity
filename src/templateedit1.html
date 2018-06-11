@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#eee;">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>简版</title>
+	<link rel="stylesheet" href="./css/main.css">
+	<style type="text/css">
+		[v-cloak] {
+		  display: none;
+		}
+	</style>
+
+</head>
+<body style="background:#eee;">
+<section class="act_wraper" id="temBox" v-cloak>
+	<div class="guide_hint_w">
+		<div class="guide_hint">
+	        <span class="guide_hint_icon"><img src="./images/icon_hint.png" alt=""></span>
+	        <p class="guide_hint_text">第三步：请填写发布商品的详细情况</p>
+	        <span class="guide_hint_close" onclick="actCommon.upHint()"><img src="images/icon_close.png" alt=""></span>
+	    </div>
+	</div>
+
+	<div v-show="!edit.goodsShow && !edit.goodsView">
+		<div class="flow_path">
+			<div class="flow_path_img"><img src="./images/flow3.png"></div>
+			<div class="flow_path_text">
+				<p>类型选择</p>
+				<p>选择模板</p>
+				<p>活动内容</p>
+				<p>活动设置</p>
+			</div>
+		</div>
+		<div class="act_name_input act_name_input2">
+			<input class="actName" type="text" placeholder="活动名称" v-model="goods.name" maxlength="20" @input="" @focus="focusFooter" @blur="blurFooter">
+			<p><span id="name_input_num" v-html="goodsNumShow">0</span>/20</p>
+		</div>
+		<ul class="goods_list">
+			<li v-for="(list,index) in goods.content.list" class="b_goods_recommend" :data-num="index">
+				<div class="unify_border update_goods_img update_goods_img2">
+			        <label @click="updateImage(index)">
+			            <!-- <input type="file" @change="changeImg(index,event)" name="file"> -->
+			            <img v-if="list.goodsImg" class="update_img_show" :src="list.goodsImg?list.goodsImg:'images/banner.jpg'" alt="">
+			            <div v-else>
+			            	<h5 class="img_title">宣传图（平铺、尺寸不限制）</h5>
+				            <img class="hand" src="images/hand.png" alt="">
+				            <p class="img_con">点击上传1张图片</p>
+			            </div>
+			        </label>
+				    <span v-if="list.goodsImg" class="del_img" @click="delImg(index)"><img src="./images/close.png" height="31" width="31" alt=""></span>
+			    </div>
+			    <div class="act_des">
+			    	<h4>活动描述（必填）<span class="act_des_num"><span v-html="textNumber(list.goodsDescribe)"></span>/2000</span></h4>
+			    	<textarea class="act_des_con" placeholder="您可填写宣传内容、优惠信息、企业介绍等内容" v-model="list.goodsDescribe" maxlength="2000" @focus="focusFooter" @blur="blurFooter"></textarea>
+			    </div>
+				<div class="b_goods_menu">
+					<span class="b_goods_del" v-show="onlyOne(index)" @click="delGoods(index)"><b><img src="images/del.png"></b>删除</span>
+					<!-- <span class="b_goods_edit" v-show="list.goodsInput" @click="editGoods(index)"><b><img src="images/icon_edit.png"></b>编辑</span> -->
+				</div>
+			</li>
+		</ul>
+		<div class="add_goods_btn" @click="addGoods"><span><img src="./images/add1.png" alt=""></span>继续添加</div>
+
+		<!-- 底部 -->
+		<div class="goods_footer_wraper">
+			<div class="goods_footer" id="goods_footer">
+				<p class="preview" @click="preview"><span><img src="./images/eye.png"></span>&nbsp;&nbsp;预览效果</p>
+				<p class="next" @click="next">下一步</p>
+			</div>
+		</div>
+	</div>
+	
+	<!-- <div class="" v-show="edit.goodsView">
+		<div class="activity_top">
+			<div class="activity_title">{{goods.name}}</div>
+		</div>
+		<div class="simple_view">
+			<div  v-for="(list,index) in goods.content.list">
+				<div><img class="simple_img" :src="list.goodsImg" alt=""></div>
+				<div class="simple_text" v-html="huanhang(list.goodsDescribe)"></div>
+			</div>
+		</div>
+	
+		<div class="goods_footer_wraper">
+			<div class="goods_footer">
+				<p class="preview" @click="preview"><span><img src="./images/eye.png"></span>&nbsp;&nbsp;关闭预览</p>
+				<p class="next" @click="next">下一步</p>
+			</div>
+		</div>
+	</div> -->
+</section>
+
+<script type="text/javascript" src="./js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="./js/alert.js"></script>
+<script type="text/javascript" src="../../common/js/source/vue.min.js"></script>
+<script type="text/javascript" src="./js/szad.js"></script>
+<script type="text/javascript" src="./js/main.js?v=3"></script>
+
+<script type="text/javascript">
+	var app = new Vue({
+		el: '#temBox',
+		data: {
+			goods:{
+				name:"",
+				content:{
+					list:[
+						{
+							goodsImg:"",
+							goodsDescribe:"",
+						}
+					]
+				}
+			},
+			edit:{
+				goodsView:false,
+			}
+		},
+		created: function () {
+			var editId=packaging.GetQueryString('editid');
+			var copy=packaging.GetQueryString('copy');
+			//判断是否有存储数据
+			var storage = window.sessionStorage;
+
+			if (!editId&&!copy&&!storage.goodList) {
+				// 只显示一次
+			   	window.actCommon.addStep('step3',localStorage.step3)
+			};
+
+			if(storage.goodList){
+				this.goods=JSON.parse(storage.goodList);
+				return false;
+			};
+			// 判断是否编辑
+			if (editId) {
+				packaging.loading('加载中...');
+				this.editActivity(editId);
+				return false;
+			}
+			// 判断再次发布
+			if(copy){
+				packaging.loading('加载中...');
+				this.copyActivity(copy)
+			}
+		},
+		mounted: function(){
+		    actCommon.footerFixed();
+		},
+		computed:{
+			goodsNumShow:function(){
+				return this.goods.name.length;
+			}
+		},
+		methods:{
+			editActivity:function(editId){//编辑获取商品信息
+				szad.init();
+				var that=this;
+	            szad.getUserInfo(function(userInfo){
+	            	var userInfo=actCommon.transformJson(userInfo);
+	            	var selectJson={
+		                "advertiseId":parseInt(editId),
+		                'userId':userInfo.garageId,
+		                'account':userInfo.account
+		            }
+		            var api=actCommon.appApiW();
+		            var url=api+"/api/app/advertise/sale/advertise/details"
+		            var gainGoods=function(data){
+		            	packaging.loadingRemove();//移除加载上传浮层
+						var data=actCommon.transformJson(data);
+					    if (data.success) {
+					    	that.goods.name=data.info.name;
+					    	that.goods.content=JSON.parse(data.info.content);
+					    	that.goods['posterPic']=data.info.posterPic;
+					    	that.goods['startTime']=data.info.startTime;
+					    	that.goods['endTime']=data.info.endTime;
+					    	var cityCode=data.info.cityInfo[0].cityCode;
+					    	var cityInfo=data.info.cityInfo;
+					    	for (var i = 1; i < cityInfo.length; i++) {
+					    		cityCode+=','+cityInfo[i].cityCode;
+					    	};
+					    	that.goods['cityCode']=cityCode;
+					    }else{
+					    	packaging.fubottom(data.message);
+					    };
+
+					}
+		            szad.requestNetworkData(url,selectJson,gainGoods)
+	            })
+			},
+			copyActivity:function(copy){//获取活动信息
+				szad.init();
+				var that=this;
+	            szad.getUserInfo(function(userInfo){
+	            	var userInfo=actCommon.transformJson(userInfo);
+	            	var selectJson={
+		                "advertiseId":parseInt(copy),
+		                'userId':userInfo.garageId,
+		                'account':userInfo.account
+		            }
+
+		            var api=actCommon.appApiW();
+		            var url=api+"/api/app/advertise/sale/advertise/details"
+		            var gainGoods=function(data){
+		            	packaging.loadingRemove();//移除加载上传浮层
+	            		var data=actCommon.transformJson(data);
+					    if (data.success) {
+					    	that.goods.name=data.info.name;
+					    	that.goods.content=JSON.parse(data.info.content);
+					    	that.goods['templateId']=data.info.templateId;
+					    	that.goods['advertiseClassifyId']=data.info.advertiseClassifyId;
+					    	that.goods['posterPic']=data.info.posterPic;
+					    	var cityCode=data.info.cityInfo[0].cityCode;
+					    	var cityInfo=data.info.cityInfo;
+					    	for (var i = 1; i < cityInfo.length; i++) {
+					    		if (cityInfo[i].cityCode=="000000"||cityInfo[i].cityCode==000000) {
+					    			cityCode="000000";
+					    			break;
+					    		}else{
+					    			cityCode+=','+cityInfo[i].cityCode;
+					    		};
+					    	};
+					    	that.goods['cityCode']=cityCode;
+					    }else{
+					    	packaging.fubottom(data.message);
+					    };
+					}
+		            szad.requestNetworkData(url,selectJson,gainGoods)
+	            })
+			},
+			addGoods:function(){//添加商品
+				if (this.goods.content.list.length<4) {
+					var content={
+						goodsImg:"",
+						goodsDescribe:"",
+					}
+					this.goods.content.list.push(content);
+
+					setTimeout(function(){
+						var scroll=packaging.getScrollHeight()
+						window.scrollTo(0, scroll);
+					}, 100)
+				}else{
+					$.myAlert('最多只能添加4组');
+				};
+			},
+			huanhang:function(value){//描述换行
+				if(!value)return "";
+				var value=value.toString();
+				var strArr=value.split("\n");
+				var str="";
+				for (var i = 0; i < strArr.length; i++) {
+					str+='<p>'+strArr[i]+'</p>';
+				};
+				return str;
+			},
+			updateImage:function(id){//上传图片
+				szad.init();
+				var info={
+					'judgeCut':false,
+				}
+				var that=this;
+				szad.cutImage(info,function(data){
+					var data=actCommon.transformJson(data);
+					if (data.success) {
+						that.goods.content.list[id].goodsImg=data.info.domain+data.info.filePath;
+					}else{
+						packaging.fubottom(data.message);
+					};
+				})
+			},
+			delGoods:function(index){//删除商品
+				if (this.goods.content.list.length>1) {
+					var that=this
+					$.myConfirmZ({
+						title:'确定要删除吗？',
+						trueBtn:'确定',
+						falseBtn:'我再想想',
+						message:'删除后，您填写的信息将被删除',
+						callback:function(){
+							that.goods.content.list.splice(index, 1);
+							packaging.fubottom('删除成功');
+						}
+					})
+				}else{
+					packaging.fubottom('至少要保留一组哦~');
+				};
+			},
+			preview:function(){//预览
+				if (this.judge()) {
+					var GoodsFooter=document.getElementById('goods_footer');
+					GoodsFooter.style.position="static";
+					this.setInfo('goodList',JSON.stringify(this.goods))
+					// return false;
+					window.location.href="preview1.html";
+				};
+			},
+			next:function(){//点击下一步
+				if (this.judge()) {
+					this.setInfo('goodList',JSON.stringify(this.goods));
+					// 编辑商品提交
+					var editId=packaging.GetQueryString('editid');
+					if (editId) {
+						window.location.href="setting.html?editid="+editId;
+						return false;
+					};
+					// 复制商品提交
+					var copy=packaging.GetQueryString('copy');
+					if (copy) {
+						var plate=this.goods.templateId;
+						var classify=this.goods.advertiseClassifyId;
+						window.location.href="setting.html?copy="+copy+"&classify="+classify+"&plate="+plate;
+						return false;
+					};
+					// 新增商品提交
+	            	var classify=packaging.GetQueryString('classify');
+		            var plate=packaging.GetQueryString('plate');
+		            if (classify&&plate) {
+						window.location.href="setting.html?classify="+classify+"&plate="+plate;
+		            }else{
+		            	
+		            };
+				};
+			},
+			judge:function(){// 提交验证 
+				var goodsList=this.goods.content.list;
+				if (!this.goods.name) {
+					$.myAlert('请输入活动名称');
+					return false;
+				}
+				if(this.goods.name.length<2){
+					$.myAlert('活动标题最少输入2个字');
+					return false;
+				};
+				if (actCommon.isSpecific(this.goods.name)) {
+					$.myAlert('活动标题禁止输入特殊符号');
+					return false;
+				};
+				for (var i = 0; i < goodsList.length; i++) {
+					if (!!!goodsList[i].goodsImg||!!!goodsList[i].goodsDescribe) {
+						$.myAlert('请填写完第'+(i+1)+'个商品信息');
+						return false;
+					}
+					if (goodsList[i].goodsDescribe.length<2) {
+						$.myAlert('第'+(i+1)+'个商品的商品描述最少输入2个字以上');
+						return false;
+					};
+					if (actCommon.isSpecific(goodsList[i].goodsDescribe)){
+						$.myAlert('第'+(i+1)+'个商品的商品描述禁止输入特殊字符');
+						return false;
+					};
+				};
+				return true;
+			},
+			setInfo:function (name,value) { // 存sessionStorage
+	            var storage = window.sessionStorage;
+	            storage.setItem(name, value);
+	        },
+			textNumber:function(value){
+				if (!value)return 0;
+				return value.length;
+			},
+			onlyOne:function(index){ //是否显示删除按钮
+				var listArr=this.goods.content.list;
+				if (listArr.length<=1) {
+					return false;
+				}else{
+					return true
+				};
+			},
+			delImg:function(index){//删除图片
+				this.goods.content.list[index].goodsImg="";
+			},
+			focusFooter:function(){//输入框获取焦点时，ios底部按钮去掉悬浮
+				if(/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)){
+					var GoodsFooter=document.getElementById('goods_footer');
+		    		GoodsFooter.style.position="static";
+				}
+			},
+			blurFooter:function(){//输入框失去焦点时，ios底部按钮悬浮
+				if(/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)){
+					var GoodsFooter=document.getElementById('goods_footer');
+			    	GoodsFooter.style.position="fixed";
+		    	}
+			}
+
+
+		}
+	})
+</script>
+
+<!-- 腾讯监控 -->
+<script type="text/javascript">
+(function() {
+	var rnd=Math.floor(Math.random()*1000000);
+	var mta = document.createElement("script");
+	mta.setAttribute("type", "text/javascript");
+	mta.src = "../../common/js/tencent.js?rnd="+rnd;
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+</script>
+</body>
+</html>

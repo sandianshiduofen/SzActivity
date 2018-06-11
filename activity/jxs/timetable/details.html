@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>班次时刻表</title>
+	<style type="text/css">
+	html { background: #ffffff; font-size: 100px; max-width: 1080px;margin: 0 auto;}
+    *{padding: 0;margin: 0;list-style: none;}
+	body {resize: none; color: #555; line-height: 1; background: #ffffff; -webkit-touch-callout: none; user-select: none; font-size: 0.12rem; font-family: tahoma,Helvetica, Arial,"\5FAE\8F6F\96C5\9ED1"; *font-family: "\5FAE\8F6F\96C5\9ED1";}
+	img {border: none;display:block;}
+	a { text-decoration: none; cursor: pointer; color: #555; }
+	a:hover{ outline: none; background: none;-webkit-tap-highlight-color: transparent;}
+	::-webkit-scrollbar { width: 0; }
+	.common{width:100%;}
+	.w100 img{width:100%;height:auto;}
+
+    .loadingZhuan{position: fixed;left:0;top: 0;top: 0;bottom: 0;right: 0;background: rgba(0,0,0,0.1);z-index: 100;}
+	.loadingZ{position: fixed;height:0.7rem;width:1rem;background: rgba(0,0,0,0.7);left:50%;margin-left:-0.5rem;top:50%;margin-top:-0.5rem;border-radius:3px;padding:0.15rem 0;}
+	.loadingZ img{width:0.4rem;display:block;margin:0 auto;}
+	.loadingZ p{text-align: center;color:#fff;line-height: 0.3rem;font-size:0.14rem;}
+
+    #serverDot{border: none;background: none;outline: none;display: block;text-align: center;margin: 0 auto;color: #2ebdb9;font-size: 0.16rem;height: 0.48rem;line-height: 0.48rem;font-weight: 600;background: url('./images/btn_xiajiantou.png') no-repeat scroll right center transparent;padding: 0 0.25rem;background-size: 0.15rem auto;-webkit-background-size: 0.15rem auto;appearance:none;-moz-appearance:none;-webkit-appearance:none;text-align: center;-webkit-tap-highlight-color: rgba(255, 255, 255, 0);-webkit-user-select: none;user-select: none;}
+    .timeAddr{padding: 0.1rem 5%;border-top: 1px solid #f2f2f2;border-bottom:10px solid #f2f2f2;position: relative;}
+    .timeAddr p{font-size: 0.14rem;line-height: 0.26rem;width: 90%;display: flex;align-items: flex-start;}
+    .timeAddr p span{white-space:nowrap;display: block;color: #9b9b9b;}
+    .timeAddr a{position: absolute;right: 5%;top: 25%;width: 8%;}
+    .timeAddr a img{width: 100%;height: auto;}
+    .classesListTitle{height: 0.4rem;display: flex;align-items: flex-start;font-size: 0.16rem;line-height: 0.4rem;justify-content:center;}
+    .classesListTitle span{padding: 0 5%;}
+    .classesListTitle b{width: 15%;height: 0.4rem;display: flex;display: -webkit-flex;align-items:center;}
+    .classesListTitle b img{width:100%;height: auto;}
+    .classesListTable table{width: 94%;border-collapse: none;margin: 0 auto; border-collapse:collapse;border:1px solid black;font-size: 0.14rem;}
+    .classesListTable table td{height: 0.36rem;line-height: 0.36rem; border:1px solid #f1f1f1;text-align: center;width: 20%;}
+    .classesListTable table tr:nth-child(2n+1) td{color: #2ebdb9;background: #f5ffff;}
+
+    .timeAddrList{width: 100%;overflow-x: auto;}
+    .timeAddrList img{display: block;width: 100%;}
+    </style>
+
+</head>
+<body>
+	<section id="detailsVue">
+        <header>
+            <select name="serverDot" id="serverDot"></select>
+        </header>
+        <div id="timeAddrList" class="timeAddrList"></div>
+    </section>
+
+    <script type="text/javascript" src="../../common/js/source/zepto.min.js"></script>
+<script type="text/javascript">
+    var apiUrl="http://tms.3zqp.com";
+
+    var imageUrl="https://3zxgimg.oss-cn-beijing.aliyuncs.com/store/";//图片路径
+    var imgName="store";//图片名称
+    var suffix=".png";//图片后缀
+
+    var timeAddrList=document.getElementById('timeAddrList');
+    var serverDot=document.getElementById('serverDot');
+
+    var cityId=GetQueryString("cityId")||null;
+    var areaId=GetQueryString("areaId")||null;
+
+    if(!cityId){
+        noInfo(timeAddrList,'未传入cityId')
+    }else if(!areaId){
+        noInfo(timeAddrList,'未传入areaId')
+    }else{
+        loading('正在加载')
+        $.ajax({
+            url: apiUrl+'/api/wx/store/getListByArea',
+            type: 'GET',
+            dataType: 'json',
+            timeout : 10000,
+            data: {cityId:cityId,areaId:areaId,requestTokenId:requestTokenId()},
+            success:function(data){
+                console.log(data)
+                if (data.success) {
+                    var info=data.info||{};
+                    showList(info)
+                }else{
+                    alert(data.message);
+                };
+            },
+            complete : function(XMLHttpRequest,status){
+                loadingRemove();
+                if(status=='error'){
+                    noInfo(timeAddrList,'服务器请求失败')
+                }else if(status=='timeout'){
+                    noInfo(timeAddrList,'服务器请求超时')
+                }
+            }
+        });
+    }
+//  显示数据
+function showList(data){
+    //获取服务站
+    var dotDom=""
+    for(i = 0; i < data.length;i++){
+        var Obj = data[i];
+        dotDom+='<option value="'+Obj.id+'">'+Obj.name+'</option>'
+    }
+    serverDot.innerHTML=dotDom;
+    var serverDotList=serverDot.getElementsByTagName('option');
+
+    var DotId=GetQueryString("id");
+    //默认选中某一个
+    if(DotId){
+        for (var  i= 0;  i< serverDotList.length; i++) {
+            var optionValue = serverDotList[i].getAttribute('value');
+            if (optionValue==DotId){
+                serverDotList[i].setAttribute('selected',"selected");
+            }
+        }
+    }
+    var imgUrl=imageUrl+''+imgName+''+DotId+''+suffix + '?v='+requestTokenId(6);
+    timeAddrList.innerHTML ='<img id="showImg" src="'+imgUrl+'">'
+    document.getElementById('showImg').onerror = function () {
+        noInfo(timeAddrList,'该服务站暂无班次时刻表 <br>联系客服：<a style="color:#3385ff" href="tel:4001821200">4001821200</a>')
+    };
+    //服务站发生变化
+    serverDot.onchange=function(){
+        console.log(this.value)
+        var dotValue=this.value;
+        var imgUrl2=imageUrl+''+imgName+''+dotValue+''+suffix + '?v='+requestTokenId(6);
+        timeAddrList.innerHTML ='<img id="showImg" src="'+imgUrl2+'">'
+        var showImg=document.getElementById('showImg');
+        showImg.onerror = function () {
+            noInfo(timeAddrList,'该服务站暂无班次时刻表 <br>联系客服：<a style="color:#3385ff" href="tel:4001821200">4001821200</a>')
+        };
+    }
+}
+//没有的时候 
+function noInfo(dom,text){
+    dom.innerHTML='<p style="text-align:center;padding-top:1rem;font-size:0.14rem;line-height:0.2rem;"><img style="display:block;margin:0 auto 0.2rem;width:1rem;height:auto" src="./images/no_find.png"/>'+text+'</p>'
+}
+
+/*获取链接参数*/
+function GetQueryString(name)
+{
+     var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+     var r = window.location.search.substr(1).match(reg);
+     if(r!=null)return  unescape(r[2]); return null;
+}
+// 加载
+function loading(text){
+    var loader=document.createElement('div');
+    loader.id="loadingZhuan"
+    loader.setAttribute("class","loadingZhuan")
+    loader.innerHTML='<div class="loadingZ"><img src="../../common/images/zhuan.gif"><p>'+text+'</p></div>'
+	document.body.appendChild(loader);
+}
+//移除加载
+function loadingRemove(){
+    var loadingZhuan=document.getElementById('loadingZhuan')||null;
+    if(loadingZhuan){
+        loadingZhuan.parentNode.removeChild(loadingZhuan)
+    }
+}
+//随机数
+function requestTokenId(num){
+	len =num||32;
+　　var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+　　var maxPos = $chars.length;
+　　var pwd = '';
+　　for (i = 0; i < len; i++) {
+　　　　pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+　　}
+	return 'wx_tms_'+pwd;
+}
+
+</script>
+<!-- 腾讯监控 -->
+<script type="text/javascript">
+(function() {
+    var rnd=Math.floor(Math.random()*1000000);
+    var mta = document.createElement("script");
+    mta.setAttribute("type", "text/javascript");
+    mta.src = "../../common/js/tencent.js?rnd="+rnd;
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(mta, s);
+})();
+</script>
+</body>
+</html>

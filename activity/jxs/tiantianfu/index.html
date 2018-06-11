@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>天天富</title>
+	<style type="text/css">
+	html { background: #4fc7ff; font-size: 100px; max-width: 1080px;margin: 0 auto;}
+	body {margin: 0; padding: 0; resize: none; list-style: none; color: #555; line-height: 1; background: #4fc7ff; -webkit-touch-callout: none; user-select: none; font-size: 0.12rem; font-family: tahoma,Helvetica, Arial,"\5FAE\8F6F\96C5\9ED1"; *font-family: "\5FAE\8F6F\96C5\9ED1";}
+	img {border: none;display:block;}
+	a { text-decoration: none; cursor: pointer; color: #555; }
+	a:hover{ outline: none; background: none;-webkit-tap-highlight-color: transparent;}
+	::-webkit-scrollbar { width: 0; }
+	.common{width:100%;}
+	.w100 img{width:100%;height:auto;}
+	.telBtnBottom{position: relative;}
+	.telBtnBottom .tel_btn{position: absolute;width:54%;bottom:0;left:23%;}
+	</style>
+</head>
+<body>
+	<section>
+		<div class="banner common w100">
+			<img src="images/banner.jpg" alt="焦点图">
+		</div>
+		<div class="common w100 telBtnBottom">
+			<img src="images/con1.jpg" alt="">
+		</div>
+		<div class="common w100 telBtnBottom">
+			<img src="images/con2.jpg" alt="">
+			<a class="tel_btn" href="javascript:;" onclick="clickPv()"><img src="images/tel.png" alt=""  onclick="MtaH5.clickStat('jxs_tiantianfu_geren')"></a>
+		</div>
+		<div class="common w100">
+			<img src="images/con3.jpg" alt="">
+		</div>
+	</section>
+<script type="text/javascript" src="../../common/js/source/zepto.min.js"></script>
+<script type="text/javascript">
+	window.onload=function(){
+		MtaH5.clickStat("jxs_tiantianfu");
+	}
+	// 打开次数
+	var id=GetQueryString('garageId');
+	function clickPv(){
+		if(id){
+			$.ajax({
+				url: 'http://activity.3zqp.com/api/click/count',
+				type: 'POST',
+				data: {
+					userId:id,
+					requestTokenId:requestTokenId()
+				},
+		        complete : function(XMLHttpRequest,status){
+					return true;
+		    　　}
+			});
+		}
+		window.location.href="https://rich.chinaums.com/recommend/initRecommend.do?param=key2bb045&signature=6dd0d4eabbb3c548f5de1c4789fe3360d8ca728114c6b54d58f9e2c1eb19033c"
+	}
+	function GetQueryString(name){//获取参数
+	    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+	    var r = window.location.search.substr(1).match(reg);
+	    if(r!=null)return  unescape(r[2]); return null;
+	}
+	function requestTokenId(num){//随机数
+		len =num||32;
+		var $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678';
+		var maxPos = $chars.length;
+		var pwd = '';
+		for (i = 0; i < len; i++) {
+		　　pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+		}
+		return 'wx_tms_'+pwd;
+	}
+</script>
+<!-- 腾讯监控 -->
+<script type="text/javascript">
+(function() {
+	var rnd=Math.floor(Math.random()*1000000);
+	var mta = document.createElement("script");
+	mta.setAttribute("type", "text/javascript");
+	mta.src = "../../common/js/tencent.js?rnd="+rnd;
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+</script>
+</body>
+</html>

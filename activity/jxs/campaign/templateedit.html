@@ -1,0 +1,304 @@
+<!DOCTYPE html><html lang="en" style="background:#eee"><head><meta charset="UTF-8"><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="format-detection" content="telephone=no"><title>活动模板添加1</title><link rel="stylesheet" href="./css/main.css"><style>[v-cloak]{display:none}</style></head><body style="background:#eee"><section class="act_wraper" id="temBox" v-cloak><div v-show="!edit.goodsShow && !edit.goodsView"><div class="flow_path"><div class="flow_path_img"><img src="./images/flow3.png"></div><div class="flow_path_text"><p>类型选择</p><p>选择模板</p><p>活动内容</p><p>活动设置</p></div></div><div class="act_name_input"><input class="actName" type="text" placeholder="活动名称" v-model="goods.title" maxlength="20" @input=""><p><span id="name_input_num" v-html="goodsNumShow">0</span>/20</p></div><ul class="goods_list"><li v-for="(list,index) in goods.list" class="b_goods_recommend" :data-num="index"><div class="b_goods_recommend_b"><div class="b_goods_recommend_d" @click="editGoods(index)"><div class="b_goods_recommend_l"><img :src="list.goodsImg?list.goodsImg:'images/goods_default.jpg'"></div><div class="b_goods_recommend_r"><p class="b_goods_title">{{list.goodsName?list.goodsName:"无线充电器"}}</p><p class="b_goods_describe">{{list.goodsDescribe?list.goodsDescribe:"买一送二超级实惠"}}</p><p class="b_goods_contact">联系商家</p></div><div v-show="!list.goodsInput" class="shade_lucency"><p><img src="images/shou.png">商品信息(必填)<span>点击填写</span></p></div></div></div><div class="b_goods_menu"><span class="b_goods_del" v-show="onlyOne(index)" @click="delGoods(index)"><b><img src="images/del.png"></b>删除</span> <span class="b_goods_edit" v-show="list.goodsInput" @click="editGoods(index)"><b><img src="images/icon_edit.png"></b>编辑</span></div></li></ul><div class="add_goods_btn" @click="addGoods">添加商品</div><div class="goods_footer_wraper"><div class="goods_footer" id="goods_footer"><p class="preview" @click="preview"><span><img src="./images/eye.png"></span>&nbsp;&nbsp;预览效果</p><p class="next" @click="next">下一步</p></div></div></div><div v-show="edit.goodsShow" class="fillout_goods" :data-num="edit.goodsNumEdit"><div class="update_goods_i"><div class="unify_border update_goods_img"><form class="imgFile"><label><img class="goods_img_show" :src="edit.goodsImgEdit?edit.goodsImgEdit:'images/img_moren.jpg'"> <input type="file" @change="goodsImg(event)" name="file" accept="image/*"></label></form></div></div><div class="act_name_input"><input class="actName" type="text" placeholder="请输入商品名称" v-model="edit.goodsNameEdit" maxlength="12"><p><span id="name_input_num" v-html="goodsNameShow">0</span>/12</p></div><div class="act_name_input"><input class="actName" type="text" placeholder="商品折扣或价格特点" v-model="edit.goodsDescribeEdit" maxlength="12"><p><span id="name_input_num" v-html="goodsDescribeShow">0</span>/12</p></div><div class="act_name_input"><input class="actName" type="text" placeholder="￥0.00" v-model="edit.goodsOldPriceEdit" @input="inpOldBlur"></div><div class="act_name_input"><input class="actName" type="text" placeholder="￥0.00" v-model="edit.goodsNewPriceEdit" @input="inpNewBlur"></div><div class="goods_footer goods_footer2"><p class="preview" @click="falseGoods">取消</p><p class="next" @click="trueGoods">确定</p></div></div><div class="templateShow templateShow_b" v-show="edit.goodsView"><div class="include_img b_con1"><img src="images/b_banner.jpg"></div><div class="b_con2"><div class="b_con2_c"><p>品牌: 买买买</p><p>型号: 福克斯科鲁兹雪佛兰雨刮器</p><p>汽车品牌: MG 三菱 丰田 五菱 众泰 </p><p>车系: 翼神</p><p>车系: RAV4 凯美瑞 卡罗拉 威驰 汉兰达</p><p>车系: 五菱之光 宏光</p><p>车系: T600</p><p>车系: GS4</p><p>车系: 凯越 君威 君越 昂科威 英朗</p><p>车系: 博越 帝豪 远景</p><p>车系: T70</p></div></div><div class="include_img b_con3"><img src="images/b_title.png"></div><div class="b_con4"><ul class="goods_list"><li v-for="(list,index) in goods.list" class="b_goods_recommend"><div class="b_goods_recommend_b"><div class="b_goods_recommend_d"><div class="b_goods_recommend_l"><img :src="list.goodsImg?list.goodsImg:'images/goods_default.jpg'"></div><div class="b_goods_recommend_r"><p class="b_goods_title">{{list.goodsName?list.goodsName:"无线充电器"}}</p><p class="b_goods_describe">{{list.goodsDescribe?list.goodsDescribe:"买一送二超级实惠"}}</p><p class="b_goods_contact">联系商家</p></div></div></div></li></ul></div><div class="goods_footer_wraper"><div class="goods_footer"><p class="preview" @click="preview"><span><img src="./images/eye.png"></span>&nbsp;&nbsp;关闭预览</p><p class="next" @click="next">下一步</p></div></div></div></section><script src="./js/jquery-1.11.3.min.js"></script><script src="./js/alert.js"></script><script src="./js/enjoyhint/enjoyhint.min.js"></script><link rel="stylesheet" href="./js/enjoyhint/enjoyhint.css"><script src="../../common/js/source/vue.min.js"></script><script src="./js/main.js"></script><script>var app = new Vue({
+		el: '#temBox',
+		data: {
+			goods:{
+				title:"",
+				list:[
+					{
+						goodsName:"",
+						goodsImg:"",
+						goodsDescribe:"",
+						goodsOldPrice:"",
+						goodsNewPrice:"",
+						goodsInput:"",
+						goodsImgInput:""
+					}
+				]
+			},
+			edit:{
+				goodsShow:false,
+				goodsView:false,
+				goodsNumEdit:"",
+				goodsNameEdit:"",
+				goodsDescribeEdit:"",
+				goodsOldPriceEdit:"",
+				goodsNewPriceEdit:"",
+				goodsImgEdit:""
+			}
+		},
+		created: function () {
+	        this.show();
+	        console.log(document.body.scrollHeight)
+	        console.log(packaging.getClientHeight())
+	        if (document.body.scrollHeight < packaging.getClientHeight()) {
+	        	document.getElementById('goods_footer').style.position="fixed"
+	        	console.log('x')
+	        };
+		},
+		computed:{
+			goodsNumShow:function(){
+				return this.goods.title.length;
+			},
+			goodsNameShow:function(){
+				return this.edit.goodsNameEdit.length;
+			},
+			goodsDescribeShow:function(){
+				return this.edit.goodsDescribeEdit.length;
+			},
+		},
+		methods:{
+			addGoods:function(){//添加商品
+				if (this.goods.list.length<=10) {
+					var list={
+							goodsName:"",
+							goodsImg:"",
+							goodsDescribe:"",
+							goodsOldPrice:"",
+							goodsNewPrice:"",
+							goodsInput:""
+						}
+					this.goods.list.push(list);
+				}else{
+					alert('最多只能添加10个商品')
+				};
+			},
+			editGoods:function(index){//编辑商品名称
+				this.edit.goodsShow=true;
+				var goodsArray=this.goods.list[index];
+				var goodsInputV=goodsArray.goodsInput;
+				// goodsArray.goodsInput=1;
+				if (goodsInputV) {
+					this.edit.goodsNumEdit=index;
+					this.edit.goodsImgEdit=goodsArray.goodsImg;
+					this.edit.goodsNameEdit=goodsArray.goodsName;
+					this.edit.goodsDescribeEdit=goodsArray.goodsDescribe;
+					this.edit.goodsOldPriceEdit=goodsArray.goodsOldPrice;
+					this.edit.goodsNewPriceEdit=goodsArray.goodsNewPrice;
+				}else{
+					this.edit.goodsNumEdit=index;
+					this.edit.goodsNameEdit="";
+					this.edit.goodsDescribeEdit="";
+					this.edit.goodsOldPriceEdit="";
+					this.edit.goodsNewPriceEdit="";
+				};
+			},
+			changeImg:function (index,event) {//上传图片
+				var that=this;
+				var valueImg=event.target.value;
+				var formData = new FormData(event.target.parentNode.parentNode);
+				this.updateImg(formData,function(data){
+					var domain=data.info.domain;
+					var filePath=data.info.filePath;
+					var goodsArrow=that.goods.list[index];
+					goodsArrow.goodsImg=domain+""+filePath;
+					goodsArrow.goodsImgInput=1;
+				})
+			},
+			goodsImg:function (event) {//上传图片
+				var that=this;
+				var valueImg=event.target.value;
+				var formData = new FormData(event.target.parentNode.parentNode);
+				that.updateImg(formData,function(data){
+					var domain=data.info.domain;
+					var filePath=data.info.filePath;
+					// goodsArrow.goodsImg=domain+""+filePath;
+					that.edit.goodsImgEdit=domain+""+filePath;
+				})
+			},
+			updateImg:function(formData,callback){
+				packaging.loading('图片上传中..')
+				var wxApiHai="http://tmsimg.3zqp.com";
+				formData.append("type", 3);
+				formData.append("path", 'headImg');
+				formData.append("requestTokenId", packaging.requestTokenId());
+				$.ajax({
+					url: wxApiHai+'/api/tms/pc/upload',
+					type: 'POST',
+					data: formData,
+					cache: false,
+					contentType: false,
+					processData: false,
+					success: function (data) {
+						callback(data);
+						packaging.fubottom('图片上传成功');
+					},
+			        complete : function(XMLHttpRequest,status){
+			        	packaging.loadingRemove();
+			    　　　　if(status=='error'||status=='timeout'){
+			    			alert('图片上传失败')
+			    　　　　}
+			    　　}
+				});
+			},
+			trueGoods:function(){//确定提交商品信息
+				var editIndex=this.edit.goodsNumEdit;
+				var goodsArray=this.goods.list[editIndex];
+
+				var goodsImgEdit=this.edit.goodsImgEdit;
+				var goodsNameEdit=this.edit.goodsNameEdit;
+				var goodsDescribeEdit=this.edit.goodsDescribeEdit;
+				var goodsOldPriceEdit=this.edit.goodsOldPriceEdit;
+				var goodsNewPriceEdit=this.edit.goodsNewPriceEdit;
+
+				if (!goodsImgEdit) {
+					packaging.fubottom('请上传图片');
+					return false;
+				};
+				if (!goodsImgEdit) {
+					packaging.fubottom('商品名称不能为空');
+					return false;
+				};
+				if (!goodsDescribeEdit) {
+					packaging.fubottom('商品描述不能为空');
+					return false;
+				};
+				if (!goodsOldPriceEdit) {
+					packaging.fubottom('原价金额不能为空');
+					return false;
+				};
+				if (!packaging.isverify(goodsOldPriceEdit)) {
+					packaging.fubottom('活动价格式填写格式不正确');
+					return false;
+				};
+				if (!goodsOldPriceEdit) {
+					packaging.fubottom('活动价填写不能为空');
+					return false;
+				};
+				if (!packaging.isverify(goodsNewPriceEdit)) {
+					packaging.fubottom('活动价额格式填写格式不正确');
+					return false;
+				};
+
+				goodsArray.goodsImg=goodsImgEdit;
+				goodsArray.goodsName=goodsNameEdit;
+				goodsArray.goodsDescribe=goodsDescribeEdit;
+				goodsArray.goodsOldPrice=goodsOldPriceEdit;
+				goodsArray.goodsNewPrice=goodsNewPriceEdit;
+				goodsArray.goodsInput=1;
+
+				this.edit.goodsShow=false;
+				this.edit.goodsNumEdit="";
+				this.edit.goodsImgEdit="";
+				this.edit.goodsNameEdit="";
+				this.edit.goodsDescribeEdit="";
+				this.edit.goodsOldPriceEdit="";
+				this.edit.goodsNewPriceEdit="";
+			},
+			falseGoods:function(){
+				this.edit.goodsShow=false;
+				this.edit.goodsNumEdit="";
+				this.edit.goodsImgEdit="";
+				this.edit.goodsNameEdit="";
+				this.edit.goodsDescribeEdit="";
+				this.edit.goodsOldPriceEdit="";
+				this.edit.goodsNewPriceEdit="";
+			},
+			delGoods:function(index){//删除商品
+				if (this.goods.list.length>1) {
+					this.goods.list.splice(index, 1);
+				}else{
+
+				};
+			},
+			preview:function(){//预览
+				console.log(JSON.parse(JSON.stringify(this.goods)))
+				if (this.edit.goodsView) {
+					this.edit.goodsView=false;
+				}else{
+					var goodsList=this.goods.list;
+					if (!this.goods.title) {
+						alert('请填写活动标题');
+						return false;
+					};
+					for (var i = 0; i < goodsList.length; i++) {
+						if (!!!goodsList[i].goodsName||!!!goodsList[i].goodsImg||!!!goodsList[i].goodsDescribe||!!!goodsList[i].goodsOldPrice||!!!goodsList[i].goodsNewPrice) {
+							alert('填写完整才可以预览');
+							return false;
+						}
+					};
+					this.edit.goodsView=true;
+				}
+			},
+			next:function(){
+				var goodsList=this.goods.list;
+				if (!this.goods.title) {
+					alert('请填写活动标题');
+					return false;
+				};
+				for (var i = 0; i < goodsList.length; i++) {
+					if (!!!goodsList[i].goodsName||!!!goodsList[i].goodsImg||!!!goodsList[i].goodsDescribe||!!!goodsList[i].goodsOldPrice||!!!goodsList[i].goodsNewPrice) {
+						alert('请填写完商品信息');
+						return false;
+					}
+				};
+
+				this.setInfo('goodList',JSON.stringify(this.goods))
+	            var storage = window.sessionStorage;
+				window.location.href="setting.html";
+			},
+			setInfo:function (name,value) {
+	            var storage = window.sessionStorage;
+	            storage.setItem(name, value);
+	        },
+			show:function () {
+	            var storage = window.sessionStorage;
+				if (!!storage.goodList) {
+					console.log(storage.goodList);
+					this.goods=JSON.parse(storage.goodList) 
+				};
+	        },
+	        titleverify: function (value) {
+				if (!value) return ''
+				value = value.toString()
+				var verify=/^\s*$/g;
+				return value.replace(verify, '')
+			},
+			onlyOne:function(index){
+				var listArr=this.goods.list;
+				if (listArr.length==1&&index==0) {
+					return false;
+				}else{return true};
+			},
+			inpOldBlur:function() {
+				var pattern = /^(\d|\.)/;
+	        	let _str = '';
+	        	let val = this.edit.goodsOldPriceEdit;
+	        	for (let i = 0; i < val.length; i++) {
+	            	if (pattern.test(val[i])) {
+	            		_str += val[i];
+	            	}
+	            }
+	            if (_str.toString().indexOf(".") != -1) {
+	            	var strArr=_str.split('.')
+	            	var len=strArr.length;
+	            	if (strArr[len-1].length>2) {
+	            		_str=parseFloat(_str).toFixed(2);
+	            		console.log(_str);
+	            	};
+	            };
+				this.edit.goodsOldPriceEdit = _str;
+	        },
+			inpNewBlur:function(event) {
+				var pattern = /^(\d|\.)/;
+	        	let _str = '';
+	        	let val = event.target.value;
+	        	for (let i = 0; i < val.length; i++) {
+	            	if (pattern.test(val[i])) {
+	            		_str += val[i];
+	            	}
+	            }
+	            if (_str.toString().indexOf(".") != -1) {
+	            	var strArr=_str.split('.')
+	            	var len=strArr.length;
+	            	if (strArr[len-1].length>2) {
+	            		_str=parseFloat(_str).toFixed(2);
+	            		console.log(_str);
+	            	};
+	            };
+				// event.target.value = _str;
+				this.edit.goodsNewPriceEdit = _str;
+	        }
+
+
+		}
+	})</script><script>!function(){var t=Math.floor(1e6*Math.random()),e=document.createElement("script");e.setAttribute("type","text/javascript"),e.src="../../common/js/tencent.js?rnd="+t;var r=document.getElementsByTagName("script")[0];r.parentNode.insertBefore(e,r)}()</script></body></html>

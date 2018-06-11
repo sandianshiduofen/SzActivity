@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" style="background:#eee;" id="html">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="format-detection" content="telephone=no">
+	<title>超值买赠</title>
+	<link rel="stylesheet" href="./css/main.css">
+	<style type="text/css">
+		[v-cloak] {
+		  display: none;
+		}
+	</style>
+</head>
+<body style="background:#eee;">
+<section class="act_wraper" id="temBox" v-cloak>
+	
+	<div class="guide_hint_w">
+		<div class="guide_hint">
+	        <span class="guide_hint_icon"><img src="./images/icon_hint.png" alt=""></span>
+	        <p class="guide_hint_text">第三步：请填写发布商品的详细情况</p>
+	        <span class="guide_hint_close"><img src="images/icon_close.png" alt=""></span>
+	    </div>
+	</div>
+	<div v-show="!edit.goodsView">
+		<div class="flow_path">
+			<div class="flow_path_img"><img src="./images/flow3.png"></div>
+			<div class="flow_path_text">
+				<p>类型选择</p>
+				<p>选择模板</p>
+				<p>活动内容</p>
+				<p>活动设置</p>
+			</div>
+		</div>
+		<div class="act_name_input">
+			<!-- <span>活动名称:</span> -->
+			<input class="actName" type="text" placeholder="活动名称" v-model="goods.name" maxlength="20" @input="" @focus="focusFooter" @blur="blurFooter">
+			<p><span id="name_input_num" v-html="goodsNumShow">0</span>/20</p>
+		</div>
+		<ul class="overflow_w">
+			<li class="goods_list goods_list2" v-for="(list,index) in goods.content.list" :data-num="index">
+				<div class="overflow_li overflow_li2" @click="editGoods(index)">
+					<div class="overflow_l">
+						<img :src="list.goodsImg?list.goodsImg:'images/goods_default.jpg'">
+					</div>
+					<div class="overflow_r">
+						<p class="overflow_list dian">{{list.goodsName?list.goodsName:"商品名称"}}</p>
+						<p class="overflow_des dian">{{list.goodsDescribe?list.goodsDescribe:"商品描述"}}</p>
+						<div class="overflow_zeng overflow_zeng2">
+							<div class="overflow_zeng_l">
+								<p class="overflow_zeng_title">买即赠</p>
+								<p class="overflow_zeng_des twodian">{{list.goodsDescribeGive?list.goodsDescribeGive:"赠品描述"}}</p>
+							</div>
+							<div class="overflow_zeng_r">
+								<img :src="list.goodsImgGive?list.goodsImgGive:'images/goods_default.jpg'">
+							</div>
+						</div>
+					</div>
+					<div v-show="!list.goodsName" class="shade_lucency">
+						<p>
+							<img src="images/shou.png">
+							商品信息(必填)<span>点击填写</span>
+						</p>
+					</div>
+				</div>
+				<div class="b_goods_menu">
+					<span class="b_goods_del" v-show="onlyOne(index)" @click="delGoods(index)"><b><img src="images/del.png"></b>删除</span>
+					<span class="b_goods_edit" v-show="list.goodsName" @click="editGoods(index)"><b><img src="images/icon_edit.png"></b>编辑</span>
+				</div>
+				
+			</li>
+		</ul>
+		<div class="add_goods_btn" @click="addGoods"><span><img src="./images/add1.png" alt=""></span>继续添加商品</div>
+
+		<!-- 底部 -->
+		<div class="goods_footer_wraper">
+			<div class="goods_footer" id="goods_footer">
+				<p class="preview" @click="preview"><span><img src="./images/eye.png"></span>&nbsp;&nbsp;预览效果</p>
+				<p class="next" @click="next">下一步</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- 编辑商品 -->
+	<div v-show="edit.goodsShow" class="fillout_goods_w" @click="falseGoods"></div>
+	<transition name="slide-fade">
+	<div v-show="edit.goodsShow" class="fillout_goods fillout_goods2" :data-num="edit.goodsNumEdit">
+		<div class="fillout_goods_top">
+			<p>编辑商品</p>
+			<span @click="falseGoods"><img src="./images/icon_close.png"></span>
+		</div>
+		<div class="fillout_goods_h">
+			<div class="update_goods_i">
+				<div class="unify_border update_goods_img" >
+					<form class="imgFile">
+					<label @click="updateImage('1')">
+						<!-- <input type="file" @change="goodsImg(event)" name="file" accept="image/*"> -->
+			            <img v-if="edit.goodsImgEdit" class="update_img_show" :src="edit.goodsImgEdit" alt="">
+			            <div v-else>
+			            	<h5 class="img_title">商品图(必填)</h5>
+				            <img class="hand" src="images/hand.png" alt="">
+				            <p class="img_con">点击上传1张图片</p>
+			            </div>
+					</label>
+					<span v-if="edit.goodsImgEdit" class="del_img" @click="delImg('1')"><img src="./images/close.png" alt=""></span>
+					</form>
+				</div>
+			</div>
+			<div class="act_name_input">
+				<input class="actName" type="text" placeholder="商品名称" v-model="edit.goodsNameEdit" maxlength="12">
+				<p><span id="name_input_num" v-html="goodsNameShow">0</span>/12</p>
+			</div>
+			<div class="act_name_input">
+				<input class="actName" type="text" placeholder="描述（商品折扣或价格或特点）" v-model="edit.goodsDescribeEdit" maxlength="12">
+				<p><span id="name_input_num" v-html="goodsDescribeShow">0</span>/12</p>
+			</div>
+			<div class="complimentary_tit">赠品信息</div>
+			<div class="update_goods_i update_goods_i2">
+				<div class="unify_border update_goods_img">
+					<form class="imgFile">
+					<label @click="updateImage('2')">
+						<!-- <input type="file" @change="goodsImgGive(event)" name="file" accept="image/*"> -->
+			            <img v-if="edit.goodsImgGiveEdit" class="update_img_show" :src="edit.goodsImgGiveEdit" alt="">
+			            <div v-else>
+			            	<h5 class="img_title">赠送商品图</h5>
+				            <img class="hand" src="images/hand.png" alt="">
+				            <p class="img_con">点击上传</p>
+			            </div>
+					</label>
+					<span v-if="edit.goodsImgGiveEdit" class="del_img" @click="delImg('2')"><img src="./images/close.png" alt=""></span>
+					</form>
+				</div>
+			</div>
+			<div class="act_name_input">
+				<input class="actName" type="text" placeholder="描述：赠品描述" v-model="edit.goodsDescribeGiveEdit" maxlength="12">
+				<p><span id="name_input_num" v-html="goodsDescribeGiveShow">0</span>/12</p>
+			</div>
+			<div class="goods_footer_wraper">
+				<div class="goods_footer goods_footer2" id="switchover">
+					<p class="preview" @click="falseGoods">取消</p>
+					<p class="next" @click="trueGoods">确定</p>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	</transition>
+	
+	<!-- <div class="" v-show="edit.goodsView">
+		<div class="activity_top">
+			<div class="activity_title">{{goods.name}}</div>
+		</div>
+		<div class="include_img c_con1">
+			<img src="images/c_banner.jpg">
+		</div>
+		<div class="c_con2">
+			<ul class="overflow_w">
+				<li class="overflow_li" v-for="(list,index) in goods.content.list">
+					<div class="overflow_l">
+						<img :src="list.goodsImg?list.goodsImg:'images/goods_default.jpg'">
+					</div>
+					<div class="overflow_r">
+						<p class="overflow_list dian">{{list.goodsName}}</p>
+						<p class="overflow_des dian">{{list.goodsDescribe}}</p>
+						<div class="overflow_zeng">
+							<div class="overflow_zeng_l">
+								<p class="overflow_zeng_title">买即赠</p>
+								<p class="overflow_zeng_des twodian">{{list.goodsDescribeGive}}</p>
+							</div>
+							<div class="overflow_zeng_r">
+								<img :src="list.goodsImgGive">
+							</div>
+						</div>
+					</div>
+				</li>
+			</ul>
+		</div>
+	
+		<div class="goods_footer_wraper">
+			<div class="goods_footer">
+				<p class="preview" @click="preview"><span><img src="./images/eye.png"></span>&nbsp;&nbsp;关闭预览</p>
+				<p class="next" @click="next">下一步</p>
+			</div>
+		</div>
+	</div> -->
+</section>
+
+<script type="text/javascript" src="./js/jquery-1.11.3.min.js"></script>
+<script type="text/javascript" src="./js/alert.js"></script>
+<script type="text/javascript" src="../../common/js/source/vue.min.js"></script>
+<script type="text/javascript" src="./js/szad.js"></script>
+<script type="text/javascript" src="./js/main.js?v=1"></script>
+
+<script type="text/javascript">
+	var app = new Vue({
+		el: '#temBox',
+		data: {
+			goods:{
+				name:"",
+				content:{
+					list:[
+						{
+							goodsName:"",
+							goodsImg:"",
+							goodsDescribe:"",
+							goodsImgGive:"",
+							goodsDescribeGive:"",
+						},
+						{
+							goodsName:"",
+							goodsImg:"",
+							goodsDescribe:"",
+							goodsImgGive:"",
+							goodsDescribeGive:"",
+						}
+					]
+				}
+			},
+			edit:{
+				goodsShow:false,
+				goodsView:false,
+				goodsNumEdit:"",
+				goodsNameEdit:"",
+				goodsImgEdit:"",
+				goodsDescribeEdit:"",
+				goodsImgGiveEdit:"",
+				goodsDescribeGiveEdit:""
+			}
+		},
+		created: function () {
+			var editId=packaging.GetQueryString('editid');
+			var copy=packaging.GetQueryString('copy');
+			//判断是否有存储数据
+			var storage = window.sessionStorage;
+			if (!editId&&!copy&&!storage.goodList) {
+				// 只显示一次
+			   	window.actCommon.addStep('step3',localStorage.step3)
+			};
+			if(storage.goodList){
+				this.goods=JSON.parse(storage.goodList);
+				return false;
+			};
+			// 判断是都编辑
+			if (editId) {
+				this.editActivity(editId);
+				return false;
+			}
+			// 判断再次发布
+			if(copy){
+				this.copyActivity(copy)
+			}
+		},
+		computed:{
+			goodsNumShow:function(){
+				return this.goods.name?this.goods.name.length:0;
+			},
+			goodsNameShow:function(){
+				return this.edit.goodsNameEdit?this.edit.goodsNameEdit.length:0;
+			},
+			goodsDescribeShow:function(){
+				return this.edit.goodsDescribeEdit?this.edit.goodsDescribeEdit.length:0;
+			},
+			goodsDescribeGiveShow:function(){
+				return this.edit.goodsDescribeGiveEdit?this.edit.goodsDescribeGiveEdit.length:0;
+			}
+		},
+		mounted:function(){
+	    	var switchover=document.getElementById('switchover');
+		    switchover.style.top=(window.innerHeight-60)+"px";
+		    switchover.style.bottom="auto";
+
+		    actCommon.footerFixed();//底部按钮浮层显示
+			
+		},
+		methods:{
+			editActivity:function(editId){
+				packaging.loading('加载中...');
+				szad.init();//初始化加载app的方法
+				var that=this;
+	            szad.getUserInfo(function(userInfo){
+	            	var userInfo=actCommon.transformJson(userInfo);
+	            	var selectJson={
+		                "advertiseId":parseInt(editId),
+		                'userId':userInfo.garageId,
+		                'account':userInfo.account
+		            }
+
+		            var api=actCommon.appApiW();
+		            var url=api+"/api/app/advertise/sale/advertise/details"
+		            var gainGoods=function(data){
+		            	packaging.loadingRemove();//移除加载上传浮层
+						var data=actCommon.transformJson(data);
+					    if (data.success) {
+					    	that.goods.name=data.info.name;
+					    	that.goods.content=JSON.parse(data.info.content);
+					    	that.goods['posterPic']=data.info.posterPic;
+					    	that.goods['startTime']=data.info.startTime;
+					    	that.goods['endTime']=data.info.endTime;
+					    	var cityCode=data.info.cityInfo[0].cityCode;
+					    	var cityInfo=data.info.cityInfo;
+					    	for (var i = 1; i < cityInfo.length; i++) {
+					    		cityCode+=','+cityInfo[i].cityCode;
+					    	};
+					    	that.goods['cityCode']=cityCode;
+					    }else{
+					    	packaging.fubottom(data.message);
+					    };
+					}
+		            szad.requestNetworkData(url,selectJson,gainGoods)
+	            })
+			},
+			copyActivity:function(copy){
+				packaging.loading('加载中...');
+				szad.init();
+				var that=this;
+	            szad.getUserInfo(function(userInfo){
+	            	var userInfo=actCommon.transformJson(userInfo);
+	            	var selectJson={
+		                "advertiseId":parseInt(copy),
+		                'userId':userInfo.garageId,
+		                'account':userInfo.account
+		            }
+
+		            var api=actCommon.appApiW();
+		            var url=api+"/api/app/advertise/sale/advertise/details"
+		            var gainGoods=function(data){
+		            	packaging.loadingRemove();//移除加载上传浮层
+	            		var data=actCommon.transformJson(data);
+					    if (data.success) {
+					    	that.goods.name=data.info.name;
+					    	that.goods.content=JSON.parse(data.info.content);
+					    	that.goods['templateId']=data.info.templateId;
+					    	that.goods['advertiseClassifyId']=data.info.advertiseClassifyId;
+					    	that.goods['posterPic']=data.info.posterPic;
+					    	var cityCode=data.info.cityInfo[0].cityCode;
+					    	var cityInfo=data.info.cityInfo;
+					    	for (var i = 1; i < cityInfo.length; i++) {
+					    		if (cityInfo[i].cityCode=="000000"||cityInfo[i].cityCode==000000) {
+					    			cityCode="000000";
+					    			break;
+					    		}else{
+					    			cityCode+=','+cityInfo[i].cityCode;
+					    		};
+					    	};
+					    	that.goods['cityCode']=cityCode;
+					    }else{
+					    	packaging.fubottom(data.message);
+					    };
+
+					}
+		            szad.requestNetworkData(url,selectJson,gainGoods)
+	            })
+			},
+			addGoods:function(){//添加商品
+				if (this.goods.content.list.length<12) {
+					var content={
+							goodsName:"",
+							goodsImg:"",
+							goodsDescribe:""
+						}
+					this.goods.content.list.push(content);
+					setTimeout(function(){
+						var scroll=packaging.getScrollHeight()
+						window.scrollTo(0, scroll);
+					}, 100)
+				}else{
+					$.myAlert('最多只能添加12个商品');
+				};
+			},
+			editGoods:function(index){//编辑商品名称
+				this.edit.goodsShow=true;
+				var goodsArray=this.goods.content.list[index];
+				var goodsInputV=goodsArray.goodsName;
+				
+				if (goodsInputV) {
+					this.edit.goodsNumEdit=index;
+					this.edit.goodsImgEdit=goodsArray.goodsImg;
+					this.edit.goodsNameEdit=goodsArray.goodsName;
+					this.edit.goodsDescribeEdit=goodsArray.goodsDescribe;
+					this.edit.goodsImgGiveEdit=goodsArray.goodsImgGive;
+					this.edit.goodsDescribeGiveEdit=goodsArray.goodsDescribeGive;
+				}else{
+					this.edit.goodsNumEdit=index;
+					this.edit.goodsImgEdit="";
+					this.edit.goodsNameEdit="";
+					this.edit.goodsDescribeEdit="";
+					this.edit.goodsImgGiveEdit="";
+					this.edit.goodsDescribeGiveEdit="";
+				};
+				window.ModalHelper.afterOpen();//禁止body滚动
+			},
+			updateImage:function(type){
+				szad.init();
+				var info={
+					'judgeCut':true,
+					'width':200,
+					'height':200,
+					'widthScale':1,
+					'heightScale':1,
+				}
+				var that=this;
+				szad.cutImage(info,function(data){
+					var data=actCommon.transformJson(data);
+					if (data.success) {
+						var url=data.info.domain+data.info.filePath;
+						if (type=="1") {
+							that.edit.goodsImgEdit=url;
+						};
+						if (type=="2") {
+							that.edit.goodsImgGiveEdit=url;
+						};
+					}else{
+						packaging.fubottom(data.message);
+					};
+
+					
+				})
+			},
+			trueGoods:function(){//确定提交商品信息
+				var editIndex=this.edit.goodsNumEdit;
+				var goodsArray=this.goods.content.list[editIndex];
+
+				var goodsImgEdit=this.edit.goodsImgEdit;
+				var goodsNameEdit=this.edit.goodsNameEdit;
+				var goodsDescribeEdit=this.edit.goodsDescribeEdit;
+				var goodsImgGiveEdit=this.edit.goodsImgGiveEdit;
+				var goodsDescribeGiveEdit=this.edit.goodsDescribeGiveEdit;
+
+				if (!goodsImgEdit) {
+					packaging.fubottom('请上传图片');
+					return false;
+				};
+				if (!goodsNameEdit) {
+					packaging.fubottom('商品名称不能为空');
+					return false;
+				};
+				if (goodsNameEdit.length<2) {
+					packaging.fubottom('商品名称最少输入2个字');
+					return false;
+				};
+				if (actCommon.isSpecific(goodsNameEdit)) {
+					packaging.fubottom('商品名称不允许输入特殊符号');
+					return false;
+				};
+				if (!goodsDescribeEdit) {
+					packaging.fubottom('商品描述不能为空');
+					return false;
+				};
+				if (actCommon.isSpecific(goodsDescribeEdit)) {
+					packaging.fubottom('商品描述不允许输入特殊符号');
+					return false;
+				};
+				if (!goodsImgGiveEdit) {
+					packaging.fubottom('赠品图片不能为空');
+					return false;
+				};
+				if (!goodsDescribeGiveEdit) {
+					packaging.fubottom('赠品描述不能为空');
+					return false;
+				};
+				if (actCommon.isSpecific(goodsDescribeGiveEdit)) {
+					packaging.fubottom('赠品描述不允许输入特殊符号');
+					return false;
+				};
+
+				goodsArray.goodsImg=goodsImgEdit;
+				goodsArray.goodsName=goodsNameEdit;
+				goodsArray.goodsDescribe=goodsDescribeEdit;
+				goodsArray.goodsImgGive=goodsImgGiveEdit;
+				goodsArray.goodsDescribeGive=goodsDescribeGiveEdit;
+
+				this.edit.goodsShow=false;
+				this.edit.goodsNumEdit="";
+				this.edit.goodsImgEdit="";
+				this.edit.goodsNameEdit="";
+				this.edit.goodsDescribeEdit="";
+				this.edit.goodsImgGiveEdit="";
+				this.edit.goodsDescribeGiveEdit="";
+    			window.ModalHelper.beforeClose();//清除禁止body滚动
+			},
+			falseGoods:function(){
+				this.edit.goodsShow=false;
+				this.edit.goodsNumEdit="";
+				this.edit.goodsImgEdit="";
+				this.edit.goodsNameEdit="";
+				this.edit.goodsDescribeEdit="";
+				this.edit.goodsImgGiveEdit="";
+				this.edit.goodsDescribeGiveEdit="";
+    			window.ModalHelper.beforeClose();//清除禁止body滚动
+			},
+			delGoods:function(index){//删除商品
+				if (this.goods.content.list.length>2) {
+					var that=this;
+					$.myConfirmZ({
+						title:'确定要删除吗？',
+						trueBtn:'确定',
+						falseBtn:'我再想想',
+						message:'删除后，您填写的信息将被删除',
+						callback:function(){
+							that.goods.content.list.splice(index, 1);
+							packaging.fubottom('删除成功');
+						}
+					})
+				}else{
+					$.myAlert('至少要保留2个商品哦~');
+				};
+			},
+			preview:function(){//预览
+				if (this.judge()) {
+					this.setInfo('goodList',JSON.stringify(this.goods))
+					window.location.href="preview3.html";
+				};
+			},
+			next:function(){//下一步
+				if (this.judge()) {
+					this.setInfo('goodList',JSON.stringify(this.goods));
+					// 编辑商品提交
+					var editId=packaging.GetQueryString('editid');
+					if (editId) {
+						window.location.href="setting.html?editid="+editId;
+						return false;
+					};
+					// 复制商品提交
+					var copy=packaging.GetQueryString('copy');
+					if (copy) {
+						var plate=this.goods.templateId;
+						var classify=this.goods.advertiseClassifyId;
+						window.location.href="setting.html?copy="+copy+"&classify="+classify+"&plate="+plate;
+						return false;
+					};
+					// 新增商品提交
+	            	var classify=packaging.GetQueryString('classify');
+		            var plate=packaging.GetQueryString('plate');
+		            if (classify&&plate) {
+						window.location.href="setting.html?classify="+classify+"&plate="+plate;
+		            }else{
+		            	
+		            };
+				};
+			},
+			judge:function(){//判断是否全部填写信息
+				var goodsList=this.goods.content.list;
+				if (!this.goods.name) {
+					$.myAlert('请填写活动标题');
+					return false;
+				};
+				if (this.goods.name.length<2) {
+					$.myAlert('活动标题最少输入2个字');
+					return false;
+				};
+				if (actCommon.isSpecific(this.goods.name)) {
+					$.myAlert('活动标题禁止输入特殊符号');
+					return false;
+				};
+				if (this.goods.name<2) {
+					$.myAlert('活动标题最少输入2个字');
+					return false;
+				};
+				for (var i = 0; i < goodsList.length; i++) {
+					if (!!!goodsList[i].goodsName||!!!goodsList[i].goodsImg||!!!goodsList[i].goodsDescribe||!!!goodsList[i].goodsImgGive||!!!goodsList[i].goodsDescribeGive) {
+						$.myAlert('第'+(i+1)+'个商品信息还没填写完整哦~');
+						return false;
+					}
+				};
+				return true;
+			},
+			setInfo:function (name,value) {//获取存储的数据
+	            var storage = window.sessionStorage;
+	            storage.setItem(name, value);
+	        },
+	        titleverify: function (value) {
+				if (!value) return ''
+				value = value.toString()
+				var verify=/^\s*$/g;
+				return value.replace(verify, '')
+			},
+			onlyOne:function(index){//判断是不是保留两个以上的商品
+				var listArr=this.goods.content.list;
+				if (listArr.length<=2) {
+					return false;
+				}else{
+					return true
+				};
+			},
+			delImg:function(type){//删除图片
+				if (type=="1") {
+					this.edit.goodsImgEdit="";
+				}else{
+					this.edit.goodsImgGiveEdit="";
+				};
+			},
+			focusFooter:function(){//输入框获取焦点时，ios底部按钮去掉悬浮
+				if(/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)){
+					var GoodsFooter=document.getElementById('goods_footer');
+		    		GoodsFooter.style.position="static";
+				}
+			},
+			blurFooter:function(){//输入框失去焦点时，ios底部按钮悬浮
+				if(/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent)){
+					var GoodsFooter=document.getElementById('goods_footer');
+			    	GoodsFooter.style.position="fixed";
+		    	}
+			}
+		}
+	})
+</script>
+
+
+<!-- 腾讯监控 -->
+<script type="text/javascript">
+(function() {
+	var rnd=Math.floor(Math.random()*1000000);
+	var mta = document.createElement("script");
+	mta.setAttribute("type", "text/javascript");
+	mta.src = "../../common/js/tencent.js?rnd="+rnd;
+	var s = document.getElementsByTagName("script")[0];
+	s.parentNode.insertBefore(mta, s);
+})();
+</script>
+</body>
+</html>
